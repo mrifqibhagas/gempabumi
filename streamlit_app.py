@@ -73,3 +73,13 @@ ax.grid(True)
 st.pyplot(fig)
 
 st.write('Jumlah Data yang Difilter:', len(filtered_data))
+
+# 2. Time-Series Aktivitas Gempa per Tahun
+activity_per_year = data.groupby('year').size()
+plt.figure(figsize=(12, 6))
+plt.plot(activity_per_year.index, activity_per_year.values, marker='o', linestyle='-', color='orange')
+plt.title('Tren Aktivitas Gempa per Tahun', fontsize=14)
+plt.xlabel('Tahun')
+plt.ylabel('Jumlah Kejadian Gempa')
+plt.grid(axis='both', linestyle='--', alpha=0.7)
+plt.show()
