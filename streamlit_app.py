@@ -19,7 +19,7 @@ data = pd.read_csv(file_path, sep=';', low_memory=False)
 st.set_page_config(page_title='Analisis Data Gempa Bumi', layout='wide')
 
 # Tambahkan gambar header atau logo jika diperlukan
-st.image('header_image.png', use_column_width=True)
+#st.image('header_image.png', use_column_width=True)
 
 st.title('📊 **Analisis Data Gempa Bumi**')
 
