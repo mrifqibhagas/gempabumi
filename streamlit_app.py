@@ -7,7 +7,7 @@ import streamlit as st
 
 # Fungsi untuk memfilter data berdasarkan rentang tahun
 def filter_data_by_year_range(data, start_year, end_year):
-    data['Year'] = pd.to_datetime(data['tanggal'], errors='coerce').dt.year
+    data['Year'] = pd.to_datetime(data['datetime'], errors='coerce').dt.year
     filtered_data = data[(data['Year'] >= start_year) & (data['Year'] <= end_year)]
     return filtered_data
 
@@ -19,8 +19,8 @@ data = pd.read_csv(file_path, sep=';', low_memory=False)
 st.title('Analisis Data Gempa Bumi')
 
 # Input rentang tahun dari pengguna
-min_year = int(data['tanggal'].min()[:4])
-max_year = int(data['tanggal'].max()[:4])
+min_year = int(data['datetime'].min()[:4])
+max_year = int(data['datetime'].max()[:4])
 start_year, end_year = st.slider(
     'Pilih Rentang Tahun:',
     min_value=min_year,
