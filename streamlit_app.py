@@ -33,13 +33,33 @@ elif page == "Visualisasi Berdasarkan Tahun":
     # Filter data berdasarkan rentang tahun
     filtered_data = filter_data_by_year_range(data, start_year, end_year)
 
-    # Pastikan data yang terfilter memiliki kolom 'longitude' dan 'latitude'
+    # 1. Distribusi Magnitudo Gempa
+    st.subheader('📊 Distribusi Magnitudo Gempa di Indonesia')
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.histplot(data=filtered_data, x='magnitude', bins=30, kde=True, color='blue', ax=ax)
+    ax.set_title('Distribusi Magnitudo Gempa di Indonesia', fontsize=14)
+    ax.set_xlabel('Magnitudo', fontsize=12)
+    ax.set_ylabel('Frekuensi', fontsize=12)
+    ax.grid(axis='y', linestyle='--', alpha=0.7)
+    st.pyplot(fig)
+
+    # 2. Time-Series Aktivitas Gempa per Tahun
+    st.subheader('📈 Tren Aktivitas Gempa per Tahun')
+    activity_per_year = filtered_data.groupby('Year').size()
+    fig, ax = plt.subplots(figsize=(12, 6))
+    ax.plot(activity_per_year.index, activity_per_year.values, marker='o', linestyle='-', color='orange')
+    ax.set_title('Tren Aktivitas Gempa per Tahun', fontsize=14)
+    ax.set_xlabel('Tahun', fontsize=12)
+    ax.set_ylabel('Jumlah Kejadian Gempa', fontsize=12)
+    ax.grid(axis='both', linestyle='--', alpha=0.7)
+    st.pyplot(fig)
+
+    # 3. Visualisasi berdasarkan wilayah (Latitude & Longitude)
+    st.subheader('📍 Distribusi Titik Gempa Berdasarkan Tahun')
     if 'longitude' in filtered_data.columns and 'latitude' in filtered_data.columns:
         if filtered_data.empty:
             st.warning("Tidak ada data gempa yang ditemukan untuk rentang tahun tersebut.")
         else:
-            # Visualisasi distribusi titik gempa berdasarkan tahun
-            st.subheader('📍 Distribusi Titik Gempa Berdasarkan Tahun')
             fig, ax = plt.subplots(figsize=(10, 6))
             ax.scatter(filtered_data['longitude'], filtered_data['latitude'], color='blue', alpha=0.5, s=10)
             ax.set_title('Distribusi Titik Gempa Berdasarkan Tahun', fontsize=16, fontweight='bold')
