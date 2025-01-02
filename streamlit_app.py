@@ -45,7 +45,7 @@ if page == "Beranda":
 elif page == "Visualisasi Berdasarkan Tahun":
     # Halaman visualisasi berdasarkan tahun yang sudah ada sebelumnya
     st.title('📊 **Visualisasi Data Gempa Berdasarkan Tahun**')
-    start_year = st.slider('Pilih Rentang Tahun:', min_value=2010, max_value=2025, value=(2010, 2015))
+    start_year = st.slider('Pilih Rentang Tahun:', min_value=2010, max_value=2024, value=(2010, 2015))
     
     # Filter data berdasarkan rentang tahun
     filtered_data = filter_data_by_year_range(data, start_year[0], start_year[1])
