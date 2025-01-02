@@ -85,6 +85,17 @@ ax.grid(axis='both', linestyle='--', alpha=0.7)
 st.pyplot(fig)
 
 
+# 1. Distribusi Magnitudo Gempa
+st.subheader('Distribusi Magnitudo Gempa di Indonesia')
+fig, ax = plt.subplots(figsize=(10, 6))
+sns.histplot(data=filtered_data, x='magnitude', bins=30, kde=True, color='blue', ax=ax)
+ax.set_title('Distribusi Magnitudo Gempa di Indonesia', fontsize=14)
+ax.set_xlabel('Magnitudo', fontsize=12)
+ax.set_ylabel('Frekuensi', fontsize=12)
+ax.grid(axis='y', linestyle='--', alpha=0.7)
+st.pyplot(fig)
+
+
 st.write('Jumlah Data yang Difilter:', len(filtered_data))
 
 
