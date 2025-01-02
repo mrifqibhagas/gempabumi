@@ -1,56 +1,30 @@
 import pandas as pd
+import matplotlib.pyplot as plt
+import seaborn as sns
 import streamlit as st
 
-# Fungsi untuk memfilter data berdasarkan pulau
-def filter_data_by_region(data, regions_to_include):
-    # Koordinat untuk masing-masing pulau
-    regions = {
-        'Sumatera': ((-6, 6), (95, 105)),
-        'Jawa': ((-9, -5), (105, 115)),
-        'Kalimantan': ((-4, 3), (108, 119)),
-        'Sulawesi': ((-3, 2), (119, 125)),
-        'Papua': ((-10, 0), (131, 141))
-    }
-
-    # Memilih data yang sesuai dengan pulau yang dipilih oleh pengguna
-    filtered_data = pd.DataFrame()
-    for region in regions_to_include:
-        if region in regions:
-            (lat_min, lat_max), (lon_min, lon_max) = regions[region]
-            region_data = data[(data['latitude'] >= lat_min) & (data['latitude'] <= lat_max) &
-                               (data['longitude'] >= lon_min) & (data['longitude'] <= lon_max)]
-            filtered_data = pd.concat([filtered_data, region_data])
-
-    return filtered_data
-
+# Fungsi untuk memfilter data berdasarkan rentang tahun
 def filter_data_by_year_range(data, start_year, end_year):
-    # Mengonversi kolom datetime menjadi tipe data datetime, lalu ekstrak tahunnya
     data['Year'] = pd.to_datetime(data['datetime'], errors='coerce').dt.year
-    # Filter data berdasarkan rentang tahun
     filtered_data = data[(data['Year'] >= start_year) & (data['Year'] <= end_year)]
     return filtered_data
-    
+
 # Load dataset
 file_path = 'katalog_gempa2.csv'  # Ganti dengan path file Anda
 data = pd.read_csv(file_path, sep=';', low_memory=False)
 
 # Streamlit UI
-st.set_page_config(page_title='Analisis Data Gempa Bumi', layout='wide')
+st.title('📊 **Visualisasi Data Gempa Indonesia**')
 
-# Sidebar untuk navigasi
-st.sidebar.title("Navigasi")
-page = st.sidebar.radio("Pilih Halaman", ["Beranda", "Visualisasi Berdasarkan Tahun", "Visualisasi Berdasarkan Pulau"])
+# Sidebar untuk memilih halaman
+page = st.sidebar.selectbox("Pilih Halaman", ["Beranda", "Visualisasi Berdasarkan Tahun", "Visualisasi Berdasarkan Pulau"])
 
 if page == "Beranda":
-    st.title('📊 **Analisis Data Gempa Bumi**')
-    st.markdown("""
-    **Selamat datang di aplikasi analisis data gempa bumi Indonesia!**
-    Di sini, Anda dapat melihat berbagai visualisasi tentang data kejadian gempa di Indonesia berdasarkan wilayah dan tahun.
-    """)
-    #st.image('header_image.png', use_container_width=True)
+    st.header('Selamat datang di aplikasi Visualisasi Data Gempa Indonesia')
+    st.write('Silakan pilih halaman di sidebar untuk memulai analisis.')
 
+# Halaman Visualisasi Berdasarkan Tahun
 elif page == "Visualisasi Berdasarkan Tahun":
-    # Halaman visualisasi berdasarkan tahun yang sudah ada sebelumnya
     st.title('📊 **Visualisasi Data Gempa Berdasarkan Tahun**')
 
     # Mengambil nilai rentang tahun dari slider
@@ -59,32 +33,57 @@ elif page == "Visualisasi Berdasarkan Tahun":
     # Filter data berdasarkan rentang tahun
     filtered_data = filter_data_by_year_range(data, start_year, end_year)
 
-    # Visualisasi distribusi titik gempa berdasarkan tahun
-    st.subheader('📍 Distribusi Titik Gempa Berdasarkan Tahun')
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.scatter(filtered_data['longitude'], filtered_data['latitude'], color='blue', alpha=0.5, s=10)
-    ax.set_title('Distribusi Titik Gempa Berdasarkan Tahun', fontsize=16, fontweight='bold')
-    ax.set_xlabel('Longitude', fontsize=14)
-    ax.set_ylabel('Latitude', fontsize=14)
-    ax.grid(True)
-    st.pyplot(fig)
+    # Pastikan data yang terfilter memiliki kolom 'longitude' dan 'latitude'
+    if 'longitude' in filtered_data.columns and 'latitude' in filtered_data.columns:
+        if filtered_data.empty:
+            st.warning("Tidak ada data gempa yang ditemukan untuk rentang tahun tersebut.")
+        else:
+            # Visualisasi distribusi titik gempa berdasarkan tahun
+            st.subheader('📍 Distribusi Titik Gempa Berdasarkan Tahun')
+            fig, ax = plt.subplots(figsize=(10, 6))
+            ax.scatter(filtered_data['longitude'], filtered_data['latitude'], color='blue', alpha=0.5, s=10)
+            ax.set_title('Distribusi Titik Gempa Berdasarkan Tahun', fontsize=16, fontweight='bold')
+            ax.set_xlabel('Longitude', fontsize=14)
+            ax.set_ylabel('Latitude', fontsize=14)
+            ax.grid(True)
+            st.pyplot(fig)
+    else:
+        st.error("Data tidak mengandung kolom 'longitude' dan 'latitude'.")
 
+# Halaman Visualisasi Berdasarkan Pulau
 elif page == "Visualisasi Berdasarkan Pulau":
-    # Halaman visualisasi berdasarkan pulau
     st.title('📊 **Visualisasi Data Gempa Berdasarkan Pulau**')
 
-    # Pilihan pulau dari pengguna
-    selected_regions = st.multiselect(
-        'Pilih Pulau untuk Visualisasi:', 
-        ['Sumatera', 'Jawa', 'Kalimantan', 'Sulawesi', 'Papua'], 
-        default=['Sumatera', 'Jawa']  # Defaultnya Sumatera dan Jawa dipilih
-    )
+    # Pilih pulau-pulau yang ingin ditampilkan
+    islands = ['Sumatera', 'Jawa', 'Kalimantan', 'Sulawesi', 'Papua']
+    selected_islands = st.multiselect('Pilih Pulau-pulau yang ingin ditampilkan:', islands, default=['Sumatera', 'Jawa'])
+
+    # Definisikan batas koordinat per pulau
+    regions = {
+        'Sumatera': ((-6, 6), (95, 105)),
+        'Jawa': ((-9, -5), (105, 115)),
+        'Kalimantan': ((-4, 3), (108, 119)),
+        'Sulawesi': ((-3, 2), (119, 125)),
+        'Papua': ((-10, 0), (131, 141))
+    }
 
     # Filter data berdasarkan pilihan pulau
-    filtered_data = filter_data_by_region(data, selected_regions)
+    filtered_island_data = pd.DataFrame()
+    for island in selected_islands:
+        (lat_min, lat_max), (lon_min, lon_max) = regions[island]
+        island_data = data[(data['latitude'] >= lat_min) & (data['latitude'] <= lat_max) & 
+                           (data['longitude'] >= lon_min) & (data['longitude'] <= lon_max)]
+        filtered_island_data = pd.concat([filtered_island_data, island_data])
 
-    # Menampilkan jumlah data yang terpilih
-    st.write(f'Jumlah Kejadian Gempa di Pulau-pulau yang Dipilih: {filtered_data.shape[0]}')
-
-    # Menampilkan preview data terpilih (optional)
-    st.write(filtered_data.head())
+    # Visualisasi data gempa berdasarkan pulau yang dipilih
+    if filtered_island_data.empty:
+        st.warning("Tidak ada data gempa yang ditemukan untuk pulau-pulau yang dipilih.")
+    else:
+        st.subheader(f'📍 Distribusi Titik Gempa di Pulau: {", ".join(selected_islands)}')
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.scatter(filtered_island_data['longitude'], filtered_island_data['latitude'], color='blue', alpha=0.5, s=10)
+        ax.set_title(f'Distribusi Titik Gempa di Pulau: {", ".join(selected_islands)}', fontsize=16, fontweight='bold')
+        ax.set_xlabel('Longitude', fontsize=14)
+        ax.set_ylabel('Latitude', fontsize=14)
+        ax.grid(True)
+        st.pyplot(fig)
