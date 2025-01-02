@@ -31,6 +31,35 @@ start_year, end_year = st.slider(
 # Filter data berdasarkan input rentang tahun
 filtered_data = filter_data_by_year_range(data, start_year, end_year)
 
+# Visualisasi distribusi titik gempa berdasarkan wilayah
+st.subheader('Distribusi Titik Gempa Berdasarkan Wilayah')
+
+# Menghitung jumlah kejadian gempa per wilayah
+regions = {
+    'Sumatera': ((-6, 6), (95, 105)),
+    'Jawa': ((-9, -5), (105, 115)),
+    'Kalimantan': ((-4, 3), (108, 119)),
+    'Sulawesi': ((-3, 2), (119, 125)),
+    'Papua': ((-10, 0), (131, 141))
+}
+
+region_counts = {}
+for region, ((lat_min, lat_max), (lon_min, lon_max)) in regions.items():
+    count = filtered_data[(filtered_data['latitude'] >= lat_min) & (filtered_data['latitude'] <= lat_max) &
+                          (filtered_data['longitude'] >= lon_min) & (filtered_data['longitude'] <= lon_max)].shape[0]
+    region_counts[region] = count
+
+# Plot distribusi menggunakan Streamlit
+fig, ax = plt.subplots(figsize=(10, 6))
+ax.bar(region_counts.keys(), region_counts.values(), color=['red', 'blue', 'green', 'orange', 'purple'])
+ax.set_title('Distribusi Titik Gempa Berdasarkan Wilayah', fontsize=14)
+ax.set_xlabel('Wilayah', fontsize=12)
+ax.set_ylabel('Jumlah Kejadian Gempa', fontsize=12)
+ax.grid(axis='y', linestyle='--', alpha=0.7)
+st.pyplot(fig)
+
+st.write('Jumlah Wilayah yang Tercatat:', len(region_counts))
+
 # Visualisasi rata-rata magnitude per tahun
 average_magnitude = filtered_data.groupby('Year')['magnitude'].mean()
 
