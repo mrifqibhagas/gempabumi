@@ -28,7 +28,7 @@ if page == "Beranda":
     """)
     #st.image('header_image.png', use_column_width=True)
 
-elif page == "Visualisasi":
+elif page == "Visualisasi Berdasarkan Tahun":
     # Input rentang tahun dari pengguna
     st.title('📊 **Visualisasi Data Gempa Bumi**')
     
