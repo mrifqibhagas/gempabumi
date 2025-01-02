@@ -39,7 +39,7 @@ if page == "Beranda":
     **Selamat datang di aplikasi analisis data gempa bumi Indonesia!**
     Di sini, Anda dapat melihat berbagai visualisasi tentang data kejadian gempa di Indonesia berdasarkan wilayah dan tahun.
     """)
-    st.image('header_image.png', use_container_width=True)
+    #st.image('header_image.png', use_container_width=True)
 
 elif page == "Visualisasi Berdasarkan Tahun":
     # Halaman visualisasi berdasarkan tahun yang sudah ada sebelumnya
