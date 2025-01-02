@@ -18,7 +18,7 @@ st.set_page_config(page_title='Analisis Data Gempa Bumi', layout='wide')
 
 # Sidebar untuk navigasi
 st.sidebar.title("Navigasi")
-page = st.sidebar.radio("Pilih Halaman", ["Beranda", "Visualisasi"])
+page = st.sidebar.radio("Pilih Halaman", ["Beranda", "Visualisasi Berdasarkan Tahun"])
 
 if page == "Beranda":
     st.title('📊 **Analisis Data Gempa Bumi**')
