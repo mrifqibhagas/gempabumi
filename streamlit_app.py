@@ -105,22 +105,67 @@ elif page == "Visualisasi Berdasarkan Tahun":
 
     st.write(f'Jumlah Data yang Difilter: {len(filtered_data)}')
 
-# Halaman Visualisasi Berdasarkan Pulau
-elif page == "Visualisasi Berdasarkan Pulau":
-    st.title('📊 **Visualisasi Data Gempa Berdasarkan Pulau**')
 
-    # Pilih pulau-pulau yang ingin ditampilkan
-    islands = ['Sumatera', 'Jawa', 'Kalimantan', 'Sulawesi', 'Papua']
-    selected_islands = st.multiselect('Pilih Pulau-pulau yang ingin ditampilkan:', islands, default=['Sumatera', 'Jawa'])
-
-    # Definisikan batas koordinat per pulau
-    regions = {
-        'Sumatera': ((-6, 6), (95, 105)),
-        'Jawa': ((-9, -5), (105, 115)),
-        'Kalimantan': ((-4, 3), (108, 119)),
-        'Sulawesi': ((-3, 2), (119, 125)),
-        'Papua': ((-10, 0), (131, 141))
-    }
+    import pandas as pd
+    import streamlit as st
+    import folium
+    from folium.plugins import HeatMap
+    from streamlit_folium import st_folium
+    
+    # Fungsi untuk memfilter data berdasarkan rentang tahun
+    def filter_data_by_year_range(data, start_year, end_year):
+        data['Year'] = pd.to_datetime(data['datetime'], errors='coerce').dt.year
+        return data[(data['Year'] >= start_year) & (data['Year'] <= end_year)]
+    
+    # Halaman Visualisasi Heatmap
+    st.title("🗺️ Heatmap Data Gempa Bumi Berdasarkan Tahun")
+    
+    # Menentukan rentang tahun untuk slider
+    min_year = int(data['datetime'].min()[:4])
+    max_year = int(data['datetime'].max()[:4])
+    start_year, end_year = st.slider(
+        'Pilih Rentang Tahun:',
+        min_value=min_year,
+        max_value=max_year,
+        value=(2010, 2015)
+    )
+    
+    # Filter data berdasarkan input tahun
+    filtered_data = filter_data_by_year_range(data, start_year, end_year)
+    
+    # Membuat heatmap menggunakan Folium
+    st.subheader(f"Heatmap Gempa Bumi ({start_year} - {end_year})")
+    
+    # Inisialisasi peta
+    m = folium.Map(location=[-2.5, 118], zoom_start=5)
+    
+    # Menyiapkan data untuk heatmap
+    heat_data = [[row['latitude'], row['longitude']] for index, row in filtered_data.iterrows() if not pd.isnull(row['latitude']) and not pd.isnull(row['longitude'])]
+    
+    # Menambahkan heatmap ke peta
+    if heat_data:
+        HeatMap(heat_data, radius=10).add_to(m)
+        # Tampilkan peta di Streamlit
+        st_folium(m, width=700, height=500)
+    else:
+        st.warning("Tidak ada data gempa untuk rentang tahun yang dipilih.")
+    
+    # Halaman Visualisasi Berdasarkan Pulau
+    elif page == "Visualisasi Berdasarkan Pulau":
+        st.title('📊 **Visualisasi Data Gempa Berdasarkan Pulau**')
+    
+        # Pilih pulau-pulau yang ingin ditampilkan
+        islands = ['Sumatera', 'Jawa', 'Kalimantan', 'Sulawesi', 'Papua']
+        selected_islands = st.multiselect('Pilih Pulau-pulau yang ingin ditampilkan:', islands, default=['Sumatera', 'Jawa'])
+    
+        # Definisikan batas koordinat per pulau
+        regions = {
+            'Sumatera': ((-6, 6), (95, 105)),
+            'Jawa': ((-9, -5), (105, 115)),
+            'Kalimantan': ((-4, 3), (108, 119)),
+            'Sulawesi': ((-3, 2), (119, 125)),
+            'Papua': ((-10, 0), (131, 141))
+        }
 
     # Filter data berdasarkan pilihan pulau
     filtered_island_data = pd.DataFrame()
