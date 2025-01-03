@@ -105,26 +105,27 @@ elif page == "Visualisasi Berdasarkan Tahun":
 
     st.write(f'Jumlah Data yang Difilter: {len(filtered_data)}')
 
-    # Membuat heatmap menggunakan Folium
-    st.subheader(f"Heatmap Gempa Bumi ({start_year} - {end_year})")
-    
-    # Inisialisasi peta
-    m = folium.Map(location=[-2.5, 118], zoom_start=5)
-    
-    # Menyiapkan data untuk heatmap
-    heat_data = [[row['latitude'], row['longitude']] for index, row in filtered_data.iterrows() if not pd.isnull(row['latitude']) and not pd.isnull(row['longitude'])]
-    
-        # Menambahkan heatmap ke peta
-        if heat_data:
-            HeatMap(heat_data, radius=10).add_to(m)
-            # Tampilkan peta di Streamlit
-            st_folium(m, width=700, height=500)
-        else:
-            st.warning("Tidak ada data gempa untuk rentang tahun yang dipilih.")
-    
-    # Halaman Visualisasi Berdasarkan Pulau
-    elif page == "Visualisasi Berdasarkan Pulau":
-        st.title('📊 **Visualisasi Data Gempa Berdasarkan Pulau**')
+# Membuat heatmap menggunakan Folium
+st.subheader(f"Heatmap Gempa Bumi ({start_year} - {end_year})")
+
+# Inisialisasi peta
+m = folium.Map(location=[-2.5, 118], zoom_start=5)
+
+# Menyiapkan data untuk heatmap
+heat_data = [[row['latitude'], row['longitude']] for index, row in filtered_data.iterrows() if not pd.isnull(row['latitude']) and not pd.isnull(row['longitude'])]
+
+# Menambahkan heatmap ke peta
+if heat_data:  # Perbaikan: Indentasi sudah sejajar
+    HeatMap(heat_data, radius=10).add_to(m)
+    # Tampilkan peta di Streamlit
+    st_folium(m, width=700, height=500)
+else:  # Perbaikan: Indentasi sudah sejajar
+    st.warning("Tidak ada data gempa untuk rentang tahun yang dipilih.")
+
+# Halaman Visualisasi Berdasarkan Pulau
+elif page == "Visualisasi Berdasarkan Pulau":  # Pastikan ini sejajar dengan konteks page sebelumnya
+    st.title('📊 **Visualisasi Data Gempa Berdasarkan Pulau**')
+
     
         # Pilih pulau-pulau yang ingin ditampilkan
         islands = ['Sumatera', 'Jawa', 'Kalimantan', 'Sulawesi', 'Papua']
