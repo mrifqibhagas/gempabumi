@@ -142,13 +142,13 @@ elif page == "Visualisasi Berdasarkan Tahun":
     # Menyiapkan data untuk heatmap
     heat_data = [[row['latitude'], row['longitude']] for index, row in filtered_data.iterrows() if not pd.isnull(row['latitude']) and not pd.isnull(row['longitude'])]
     
-    # Menambahkan heatmap ke peta
-    if heat_data:
-        HeatMap(heat_data, radius=10).add_to(m)
-        # Tampilkan peta di Streamlit
-        st_folium(m, width=700, height=500)
-    else:
-        st.warning("Tidak ada data gempa untuk rentang tahun yang dipilih.")
+        # Menambahkan heatmap ke peta
+        if heat_data:
+            HeatMap(heat_data, radius=10).add_to(m)
+            # Tampilkan peta di Streamlit
+            st_folium(m, width=700, height=500)
+        else:
+            st.warning("Tidak ada data gempa untuk rentang tahun yang dipilih.")
     
     # Halaman Visualisasi Berdasarkan Pulau
     elif page == "Visualisasi Berdasarkan Pulau":
