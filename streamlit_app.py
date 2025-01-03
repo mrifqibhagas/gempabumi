@@ -105,34 +105,6 @@ elif page == "Visualisasi Berdasarkan Tahun":
 
     st.write(f'Jumlah Data yang Difilter: {len(filtered_data)}')
 
-
-    import pandas as pd
-    import streamlit as st
-    import folium
-    from folium.plugins import HeatMap
-    from streamlit_folium import st_folium
-    
-    # Fungsi untuk memfilter data berdasarkan rentang tahun
-    def filter_data_by_year_range(data, start_year, end_year):
-        data['Year'] = pd.to_datetime(data['datetime'], errors='coerce').dt.year
-        return data[(data['Year'] >= start_year) & (data['Year'] <= end_year)]
-    
-    # Halaman Visualisasi Heatmap
-    st.title("🗺️ Heatmap Data Gempa Bumi Berdasarkan Tahun")
-    
-    # Menentukan rentang tahun untuk slider
-    min_year = int(data['datetime'].min()[:4])
-    max_year = int(data['datetime'].max()[:4])
-    start_year, end_year = st.slider(
-        'Pilih Rentang Tahun:',
-        min_value=min_year,
-        max_value=max_year,
-        value=(2010, 2015)
-    )
-    
-    # Filter data berdasarkan input tahun
-    filtered_data = filter_data_by_year_range(data, start_year, end_year)
-    
     # Membuat heatmap menggunakan Folium
     st.subheader(f"Heatmap Gempa Bumi ({start_year} - {end_year})")
     
