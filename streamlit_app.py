@@ -159,3 +159,25 @@ elif page == "Visualisasi Berdasarkan Pulau":
         ax.grid(True)
         st.pyplot(fig)
 
+    # Visualisasi Gempa Berdasarkan tahun
+    st.subheader(f'📊 Frekuensi Gempa per Tahun di Pulau {selected_island}')
+    freq_per_year = filtered_island_data.groupby('Year').size()
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(freq_per_year.index, freq_per_year.values, color='orange')
+    ax.set_title(f'Frekuensi Gempa per Tahun di Pulau {selected_island}', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Tahun', fontsize=14)
+    ax.set_ylabel('Jumlah Gempa', fontsize=14)
+    ax.grid(axis='y', linestyle='--', alpha=0.7)
+    st.pyplot(fig)
+
+    # Heatmap Daerah
+    st.subheader(f'🗺️ Heatmap Magnitudo di Pulau {selected_island}')
+    m = folium.Map(location=[(lat_min + lat_max) / 2, (lon_min + lon_max) / 2], zoom_start=6)
+    heat_data = [[row['latitude'], row['longitude'], row['magnitude']] for index, row in filtered_island_data.iterrows()]
+    if heat_data:
+        HeatMap(heat_data, radius=15).add_to(m)
+        st_folium(m, width=700, height=500)
+    else:
+        st.warning(f"Tidak ada data gempa di Pulau {selected_island}.")
+
+
