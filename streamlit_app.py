@@ -41,6 +41,17 @@ elif page == "Visualisasi Berdasarkan Tahun":
         value=(2010, 2015)
     )
 
+    # Slider Magnitudo
+    min_mag, max_mag = st.slider(
+    'Pilih Rentang Magnitudo:',
+    min_value=float(data['magnitude'].min()),
+    max_value=float(data['magnitude'].max()),
+    value=(4.0, 6.0)
+    )
+
+    # Filder data magnitudo
+    filtered_data = filtered_data[(filtered_data['magnitude'] >= min_mag) & (filtered_data['magnitude'] <= max_mag)]
+
     # Filter data berdasarkan input rentang tahun
     filtered_data = filter_data_by_year_range(data, start_year, end_year)
 
