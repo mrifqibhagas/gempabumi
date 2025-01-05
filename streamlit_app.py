@@ -102,6 +102,38 @@ elif page == "Visualisasi Berdasarkan Tahun":
     ax.grid(axis='both', linestyle='--', alpha=0.7)
     st.pyplot(fig)
 
+    # Tren Kedalaman Gempa per Tahun
+    st.subheader('📉 Tren Kedalaman Gempa per Tahun')
+    avg_depth_per_year = filtered_data.groupby('Year')['depth'].mean()
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(avg_depth_per_year.index, avg_depth_per_year.values, marker='o', color='blue')
+    ax.set_title('Tren Kedalaman Gempa per Tahun', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Tahun', fontsize=14)
+    ax.set_ylabel('Rata-rata Kedalaman (km)', fontsize=14)
+    ax.grid(True)
+    st.pyplot(fig)
+
+    # Distribusi Kedalaman Gempa
+    st.subheader('🌍 Distribusi Kedalaman Gempa')
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.histplot(data=filtered_data, x='depth', bins=30, kde=True, color='purple', ax=ax)
+    ax.set_title('Distribusi Kedalaman Gempa', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Kedalaman (km)', fontsize=14)
+    ax.set_ylabel('Frekuensi', fontsize=14)
+    ax.grid(axis='y', linestyle='--', alpha=0.7)
+    st.pyplot(fig)
+
+    # Scatter Plot Magnitudo vs Kedalaman
+    st.subheader('📊 Scatter Plot Magnitudo vs Kedalaman')
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.scatterplot(data=filtered_data, x='depth', y='magnitude', alpha=0.7, color='red', ax=ax)
+    ax.set_title('Magnitudo vs Kedalaman', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Kedalaman (km)', fontsize=14)
+    ax.set_ylabel('Magnitudo', fontsize=14)
+    ax.grid(True)
+    st.pyplot(fig)
+
+
 
     # Membuat heatmap menggunakan Folium
     st.subheader(f"Heatmap Gempa Bumi ({start_year} - {end_year})")
