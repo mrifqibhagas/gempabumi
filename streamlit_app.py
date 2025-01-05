@@ -109,6 +109,7 @@ elif page == "Visualisasi Berdasarkan Tahun":
 
 # Halaman Visualisasi Berdasarkan Pulau
 elif page == "Visualisasi Berdasarkan Pulau":
+    st.title('📊 **Visualisasi Data berdasarkan Pulau**')
     st.subheader(f'📊 Rata-rata Magnitudo Gempa {selected_island}')
 
     # Pilih pulau-pulau yang ingin ditampilkan
