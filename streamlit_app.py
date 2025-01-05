@@ -109,12 +109,23 @@ elif page == "Visualisasi Berdasarkan Tahun":
 
 # Halaman Visualisasi Berdasarkan Pulau
 elif page == "Visualisasi Berdasarkan Pulau":
-    st.title('📊 **Visualisasi Data Gempa Berdasarkan Pulau**')
+    st.title('📊 **Rata-rata Magnitudo Gempa Berdasarkan Pulau**')
 
     # Pilih pulau-pulau yang ingin ditampilkan
     islands = ['Sumatera', 'Jawa', 'Kalimantan', 'Sulawesi', 'Papua']
-    selected_islands = st.multiselect('Pilih Pulau-pulau yang ingin ditampilkan:', islands, default=['Sumatera', 'Jawa'])
+    selected_island = st.selectbox('Pilih Pulau:', islands)
 
+    # Tentukan rentang tahun
+    min_year = int(data['datetime'].min()[:4])
+    max_year = int(data['datetime'].max()[:4])
+    start_year, end_year = st.slider(
+        'Pilih Rentang Tahun:',
+        min_value=min_year,
+        max_value=max_year,
+        value=(2010, 2015)
+    )
+
+    # Definisikan batas koordinat per pulau
     regions = {
         'Sumatera': ((-6, 6), (95, 105)),
         'Jawa': ((-9, -5), (105, 115)),
@@ -123,23 +134,28 @@ elif page == "Visualisasi Berdasarkan Pulau":
         'Papua': ((-10, 0), (131, 141))
     }
 
-    # Filter data berdasarkan pilihan pulau
-    filtered_island_data = pd.DataFrame()
-    for island in selected_islands:
-        (lat_min, lat_max), (lon_min, lon_max) = regions[island]
-        island_data = data[(data['latitude'] >= lat_min) & (data['latitude'] <= lat_max) & 
-                           (data['longitude'] >= lon_min) & (data['longitude'] <= lon_max)]
-        filtered_island_data = pd.concat([filtered_island_data, island_data])
+    # Filter data berdasarkan pilihan pulau dan rentang tahun
+    (lat_min, lat_max), (lon_min, lon_max) = regions[selected_island]
+    filtered_island_data = data[
+        (data['latitude'] >= lat_min) & 
+        (data['latitude'] <= lat_max) &
+        (data['longitude'] >= lon_min) &
+        (data['longitude'] <= lon_max)
+    ]
+    filtered_island_data = filter_data_by_year_range(filtered_island_data, start_year, end_year)
 
-    # Visualisasi data gempa berdasarkan pulau yang dipilih
+    # Visualisasi rata-rata magnitudo per tahun
     if filtered_island_data.empty:
-        st.warning("Tidak ada data gempa yang ditemukan untuk pulau-pulau yang dipilih.")
+        st.warning(f"Tidak ada data gempa untuk Pulau {selected_island} dalam rentang tahun yang dipilih.")
     else:
-        st.subheader(f'📍 Distribusi Titik Gempa di Pulau: {", ".join(selected_islands)}')
+        st.subheader(f'📉 Rata-rata Magnitudo Gempa di Pulau {selected_island} ({start_year}-{end_year})')
+        avg_magnitude = filtered_island_data.groupby('Year')['magnitude'].mean()
+
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.scatter(filtered_island_data['longitude'], filtered_island_data['latitude'], color='blue', alpha=0.5, s=10)
-        ax.set_title(f'Distribusi Titik Gempa di Pulau: {", ".join(selected_islands)}', fontsize=16, fontweight='bold')
-        ax.set_xlabel('Longitude', fontsize=14)
-        ax.set_ylabel('Latitude', fontsize=14)
+        ax.plot(avg_magnitude.index, avg_magnitude.values, marker='o', color='green')
+        ax.set_title(f'Rata-rata Magnitudo Gempa di Pulau {selected_island}', fontsize=16, fontweight='bold')
+        ax.set_xlabel('Tahun', fontsize=14)
+        ax.set_ylabel('Rata-rata Magnitudo', fontsize=14)
         ax.grid(True)
         st.pyplot(fig)
+
