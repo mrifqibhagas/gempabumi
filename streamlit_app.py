@@ -168,7 +168,7 @@ elif page == "Visualisasi Berdasarkan Pulau":
         'Pilih Rentang Tahun:',
         min_value=min_year,
         max_value=max_year,
-        value=(2010, 2015)
+        value=(2008, 2024)
     )
 
     # Definisikan batas koordinat per pulau
@@ -190,6 +190,17 @@ elif page == "Visualisasi Berdasarkan Pulau":
     ]
     filtered_island_data = filter_data_by_year_range(filtered_island_data, start_year, end_year)
 
+    # Slider Magnitudo
+    min_mag, max_mag = st.slider(
+    'Pilih Rentang Magnitudo:',
+    min_value=float(data['magnitude'].min()),
+    max_value=float(data['magnitude'].max()),
+    value=(0.64, 7.92)
+    )
+
+    # Filder data magnitudo
+    filtered_data = filtered_data[(filtered_data['magnitude'] >= min_mag) & (filtered_data['magnitude'] <= max_mag)]
+    
     # Visualisasi rata-rata magnitudo per tahun
     if filtered_island_data.empty:
         st.warning(f"Tidak ada data gempa untuk Pulau {selected_island} dalam rentang tahun yang dipilih.")
