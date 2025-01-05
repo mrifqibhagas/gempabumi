@@ -55,22 +55,6 @@ elif page == "Visualisasi Berdasarkan Tahun":
     # Filder data magnitudo
     filtered_data = filtered_data[(filtered_data['magnitude'] >= min_mag) & (filtered_data['magnitude'] <= max_mag)]
 
-    # Membuat heatmap menggunakan Folium
-    st.subheader(f"Heatmap Gempa Bumi ({start_year} - {end_year})")
-
-    # Inisialisasi peta
-    m = folium.Map(location=[-2.5, 118], zoom_start=5)
-
-    # Menyiapkan data untuk heatmap
-    heat_data = [[row['latitude'], row['longitude']] for index, row in filtered_data.iterrows() if not pd.isnull(row['latitude']) and not pd.isnull(row['longitude'])]
-
-    # Menambahkan heatmap ke peta
-    if heat_data:
-        HeatMap(heat_data, radius=10).add_to(m)
-        # Tampilkan peta di Streamlit
-        st_folium(m, width=700, height=500)
-    else:
-        st.warning("Tidak ada data gempa untuk rentang tahun yang dipilih.")
 
     # Visualisasi distribusi titik gempa berdasarkan wilayah
     st.subheader('📍 Distribusi Titik Gempa Berdasarkan Wilayah')
@@ -117,6 +101,26 @@ elif page == "Visualisasi Berdasarkan Tahun":
     ax.set_ylabel('Jumlah Kejadian Gempa', fontsize=14)
     ax.grid(axis='both', linestyle='--', alpha=0.7)
     st.pyplot(fig)
+
+
+    # Membuat heatmap menggunakan Folium
+    st.subheader(f"Heatmap Gempa Bumi ({start_year} - {end_year})")
+
+    # Inisialisasi peta
+    m = folium.Map(location=[-2.5, 118], zoom_start=5)
+
+    # Menyiapkan data untuk heatmap
+    heat_data = [[row['latitude'], row['longitude']] for index, row in filtered_data.iterrows() if not pd.isnull(row['latitude']) and not pd.isnull(row['longitude'])]
+
+    # Menambahkan heatmap ke peta
+    if heat_data:
+        HeatMap(heat_data, radius=10).add_to(m)
+        # Tampilkan peta di Streamlit
+        st_folium(m, width=700, height=500)
+    else:
+        st.warning("Tidak ada data gempa untuk rentang tahun yang dipilih.")
+
+
 
 # Halaman Visualisasi Berdasarkan Pulau
 elif page == "Visualisasi Berdasarkan Pulau":
