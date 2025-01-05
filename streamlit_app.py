@@ -329,7 +329,7 @@ elif page == "Prediksi Risiko Wilayah":
     st.pyplot(fig)
 
     st.subheader('🗺️ Visualisasi Risiko Wilayah pada Peta')
-m = folium.Map(location=[data['latitude'].mean(), data['longitude'].mean()], zoom_start=5)
+    m = folium.Map(location=[data['latitude'].mean(), data['longitude'].mean()], zoom_start=5)
 
     # Tambahkan marker berdasarkan risiko
     for index, row in X_test.iterrows():
