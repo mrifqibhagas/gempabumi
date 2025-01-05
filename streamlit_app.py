@@ -330,22 +330,23 @@ elif page == "Prediksi Risiko Wilayah":
 
     st.subheader('🗺️ Visualisasi Risiko Wilayah pada Peta')
     m = folium.Map(location=[data['latitude'].mean(), data['longitude'].mean()], zoom_start=5)
-
+    
     # Tambahkan marker berdasarkan risiko
-    for index, row in X_test.iterrows():
-        color = 'red' if y_pred[index] == 1 else 'green'
+    for features, prediction in zip(X_test.itertuples(index=False), y_pred):
+        color = 'red' if prediction == 1 else 'green'
         folium.CircleMarker(
-            location=[row['latitude'], row['longitude']],
+            location=[features.latitude, features.longitude],
             radius=5,
             color=color,
             fill=True,
             fill_color=color,
             fill_opacity=0.7,
-            popup=f"Risk: {'High' if y_pred[index] == 1 else 'Low'}"
+            popup=f"Risk: {'High' if prediction == 1 else 'Low'}"
         ).add_to(m)
     
     # Tampilkan peta di Streamlit
     st_folium(m, width=700, height=500)
+
 
 
 
