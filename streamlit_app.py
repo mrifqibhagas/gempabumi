@@ -169,14 +169,23 @@ elif page == "Visualisasi Berdasarkan Pulau":
     ax.grid(axis='y', linestyle='--', alpha=0.7)
     st.pyplot(fig)
 
-    # Heatmap Daerah
     st.subheader(f'🗺️ Heatmap Magnitudo di Pulau {selected_island}')
+    
+    # Filter data dengan menghapus baris yang memiliki NaN di latitude, longitude, atau magnitude
+    filtered_island_data_cleaned = filtered_island_data.dropna(subset=['latitude', 'longitude', 'magnitude'])
+    
+    # Menyiapkan peta
     m = folium.Map(location=[(lat_min + lat_max) / 2, (lon_min + lon_max) / 2], zoom_start=6)
-    heat_data = [[row['latitude'], row['longitude'], row['magnitude']] for index, row in filtered_island_data.iterrows()]
+    
+    # Menyiapkan data untuk heatmap
+    heat_data = [[row['latitude'], row['longitude'], row['magnitude']] for index, row in filtered_island_data_cleaned.iterrows()]
+    
+    # Menambahkan heatmap ke peta
     if heat_data:
         HeatMap(heat_data, radius=15).add_to(m)
         st_folium(m, width=700, height=500)
     else:
         st.warning(f"Tidak ada data gempa di Pulau {selected_island}.")
+
 
 
