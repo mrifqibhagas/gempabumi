@@ -38,7 +38,7 @@ elif page == "Visualisasi Berdasarkan Tahun":
         'Pilih Rentang Tahun:',
         min_value=min_year,
         max_value=max_year,
-        value=(2010, 2015)
+        value=(2008, 2024)
     )
 
     # Filter data berdasarkan input rentang tahun
@@ -49,7 +49,7 @@ elif page == "Visualisasi Berdasarkan Tahun":
     'Pilih Rentang Magnitudo:',
     min_value=float(data['magnitude'].min()),
     max_value=float(data['magnitude'].max()),
-    value=(4.0, 6.0)
+    value=(0.64, 7.92)
     )
 
     # Filder data magnitudo
