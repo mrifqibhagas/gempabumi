@@ -192,14 +192,17 @@ elif page == "Visualisasi Berdasarkan Pulau":
 
     # Slider Magnitudo
     min_mag, max_mag = st.slider(
-    'Pilih Rentang Magnitudo:',
-    min_value=float(data['magnitude'].min()),
-    max_value=float(data['magnitude'].max()),
-    value=(0.64, 7.92)
+        'Pilih Rentang Magnitudo:',
+        min_value=float(data['magnitude'].min()),
+        max_value=float(data['magnitude'].max()),
+        value=(0.64, 7.92)
     )
-
-    # Filder data magnitudo
-    filtered_data = filtered_data[(filtered_data['magnitude'] >= min_mag) & (filtered_data['magnitude'] <= max_mag)]
+    
+    # Filter data magnitudo
+    filtered_island_data = filtered_island_data[
+        (filtered_island_data['magnitude'] >= min_mag) & 
+        (filtered_island_data['magnitude'] <= max_mag)
+    ]
     
     # Visualisasi rata-rata magnitudo per tahun
     if filtered_island_data.empty:
