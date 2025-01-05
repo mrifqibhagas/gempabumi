@@ -109,8 +109,6 @@ elif page == "Visualisasi Berdasarkan Tahun":
 
 # Halaman Visualisasi Berdasarkan Pulau
 elif page == "Visualisasi Berdasarkan Pulau":
-    st.title('📊 **Visualisasi Data berdasarkan Pulau**')
-    st.subheader(f'📊 Rata-rata Magnitudo Gempa {selected_island}')
 
     # Pilih pulau-pulau yang ingin ditampilkan
     islands = ['Sumatera', 'Jawa', 'Kalimantan', 'Sulawesi', 'Papua']
@@ -146,6 +144,7 @@ elif page == "Visualisasi Berdasarkan Pulau":
     filtered_island_data = filter_data_by_year_range(filtered_island_data, start_year, end_year)
 
     # Visualisasi rata-rata magnitudo per tahun
+    st.subheader(f'📊 Rata-rata Magnitudo Gempa {selected_island}')
     if filtered_island_data.empty:
         st.warning(f"Tidak ada data gempa untuk Pulau {selected_island} dalam rentang tahun yang dipilih.")
     else:
