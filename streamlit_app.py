@@ -70,9 +70,9 @@ if page == "Beranda":
                 ),
                 icon=folium.Icon(color='red', icon='info-sign')
             ).add_to(m)
-        st_folium(m, width=700, height=500)
+        st_folium(m , width=700, height=500)
     else:
-        st.warning("Dataset tidak lengkap atau kosong . Periksa kembali file Anda.")
+        st.warning("Dataset tidak lengkap atau kosong. Periksa kembali file Anda.")
 
 elif page == "Visualisasi Berdasarkan Tahun":
     st.title('📊 **Visualisasi Data Gempa Berdasarkan Tahun**')
@@ -112,11 +112,11 @@ elif page == "Visualisasi Berdasarkan Tahun":
         for island, provinces in regions_islands.items():
             total_count = 0
             for province in provinces:
-                (lat_min, lat_max), (lon_min, lon_max) = regions_detailed[province]
-                count = filtered_data[(filtered_data['latitude'] >= lat_min) & 
-                                      (filtered_data['latitude'] <= lat_max) & 
-                                      (filtered_data['longitude'] >= lon_min) & 
-                                      (filtered_data['longitude'] <= lon_max)].shape[0]
+                bounds = regions_detailed[province]
+                count = filtered_data[(filtered_data['latitude'] >= bounds['lat_min']) & 
+                                      (filtered_data['latitude'] <= bounds['lat_max']) & 
+                                      (filtered_data['longitude'] >= bounds['lon_min']) & 
+                                      (filtered_data['longitude'] <= bounds['lon_max'])].shape[0]
                 total_count += count
             region_counts[island] = total_count
 
@@ -146,7 +146,7 @@ elif page == "Distribusi Berdasarkan Pulau":
     filtered_region_data = data[(data['latitude'] >= bounds['lat_min']) &
                                 (data['latitude'] <= bounds['lat_max']) &
                                 (data['longitude'] >= bounds['lon_min']) &
-                                (data['longitude'] <= bounds['lon_max'])]
+                                (data['longitude'] <= bounds[' lon_max'])]
 
     min_year = int(data['datetime'].min()[:4])
     max_year = int(data['datetime'].max()[:4])
@@ -183,4 +183,4 @@ elif page == "Distribusi Berdasarkan Pulau":
             HeatMap(heat_data, radius=15).add_to(m)
             st_folium(m, width=700, height=500)
         else:
-            st.warning("Tidak ada data untuk heatmap pada wilayah ini.")
+            st.warning("Tidak ada data untuk heatmap pada wilayah ini.") **
