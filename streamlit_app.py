@@ -38,6 +38,10 @@ if page == "Beranda":
     st.header('Selamat datang di aplikasi Visualisasi Data Gempa Indonesia')
     st.write('Silakan pilih halaman di sidebar untuk memulai analisis.')
 
+    # Informasi Gempa terkuat
+    gempa_terkuat = data.nlargest(10, 'mag')
+    gempa_terkuat
+
 # Halaman Visualisasi Berdasarkan Tahun
 elif page == "Visualisasi Berdasarkan Tahun":
     # Input rentang tahun dari pengguna
