@@ -15,28 +15,15 @@ def filter_data_by_year_range(data, start_year, end_year):
 file_path = 'katalog_gempa2.csv'  # Ganti dengan path file Anda
 data = pd.read_csv(file_path, sep=';', low_memory=False)
 
-# Definisi wilayah lebih rinci berdasarkan provinsi
+# Definisi wilayah lebih rinci berdasarkan pulau utama dengan cakupan penuh tanpa jeda
 regions_detailed = {
-    'Aceh': ((4, 6), (95, 98)),
-    'Sumatera Utara': ((1, 4), (98, 101)),
-    'Sumatera Selatan': ((-4, 0), (103, 106)),
-    'Jawa Barat': ((-7, -5), (105, 108)),
-    'Jawa Timur': ((-9, -7), (112, 115)),
-    'Kalimantan Selatan': ((-4, -2), (114, 117)),
-    'Kalimantan Timur': ((0, 3), (116, 119)),
-    'Sulawesi Selatan': ((-6, -4), (119, 122)),
-    'Sulawesi Utara': ((0, 3), (122, 125)),
-    'Papua Barat': ((-5, 0), (131, 136)),
-    'Papua Tengah': ((-6, -3), (136, 141))
-}
-
-# Definisi wilayah berdasarkan pulau
-regions_islands = {
-    'Sumatera': ['Aceh', 'Sumatera Utara', 'Sumatera Selatan'],
-    'Jawa': ['Jawa Barat', 'Jawa Timur'],
-    'Kalimantan': ['Kalimantan Selatan', 'Kalimantan Timur'],
-    'Sulawesi': ['Sulawesi Selatan', 'Sulawesi Utara'],
-    'Papua': ['Papua Barat', 'Papua Tengah']
+    'Sumatera': {'lat_min': -6.5, 'lat_max': 6.5, 'lon_min': 94.5, 'lon_max': 106.5},
+    'Jawa': {'lat_min': -9.5, 'lat_max': -4.5, 'lon_min': 105.5, 'lon_max': 115.5},
+    'Kalimantan': {'lat_min': -4.5, 'lat_max': 3.5, 'lon_min': 108.5, 'lon_max': 119.5},
+    'Sulawesi': {'lat_min': -5.5, 'lat_max': 2.5, 'lon_min': 118.5, 'lon_max': 125.5},
+    'Papua': {'lat_min': -11.5, 'lat_max': 0.5, 'lon_min': 130.5, 'lon_max': 141.5},
+    'Bali dan Nusa Tenggara': {'lat_min': -10.5, 'lat_max': -7.5, 'lon_min': 114.5, 'lon_max': 119.5},
+    'Maluku': {'lat_min': -8.5, 'lat_max': 2.5, 'lon_min': 125.5, 'lon_max': 135.5}
 }
 
 # Streamlit UI
@@ -78,7 +65,7 @@ if page == "Beranda":
         st.warning("Dataset tidak lengkap atau kosong. Periksa kembali file Anda.")
 
 elif page == "Visualisasi Berdasarkan Tahun":
-    st.title('📊 **Visualisasi Data Berdasarkan Tahun**')
+    st.title('📊 **Visualisasi Data Gempa Berdasarkan Tahun**')
 
     min_year = int(data['datetime'].min()[:4])
     max_year = int(data['datetime'].max()[:4])
@@ -86,86 +73,85 @@ elif page == "Visualisasi Berdasarkan Tahun":
 
     filtered_data = filter_data_by_year_range(data, start_year, end_year)
 
-    min_mag, max_mag = st.slider('Pilih Rentang Magnitudo:', min_value=float(data['magnitude'].min()), max_value=float(data['magnitude'].max()), value=(0.64, 7.92))
-    filtered_data = filtered_data[(filtered_data['magnitude'] >= min_mag) & (filtered_data['magnitude'] <= max_mag)]
-
-    st.subheader('📉 Rata-rata Magnitudo Gempa per Tahun')
-    avg_magnitude = filtered_data.groupby('Year')['magnitude'].mean()
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(avg_magnitude.index, avg_magnitude.values, marker='o', color='blue')
-    ax.set_title('Rata-rata Magnitudo Gempa per Tahun', fontsize=16, fontweight='bold')
-    ax.set_xlabel('Tahun', fontsize=14)
-    ax.set_ylabel('Rata-rata Magnitudo', fontsize=14)
-    ax.grid(True)
-    st.pyplot(fig)
-
-    st.subheader('📈 Tren Aktivitas Gempa per Tahun')
-    activity_per_year = filtered_data.groupby('Year').size()
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(activity_per_year.index, activity_per_year.values, marker='o', linestyle='-', color='#FF6347')
-    ax.set_title('Tren Aktivitas Gempa per Tahun', fontsize=16, fontweight='bold')
-    ax.set_xlabel('Tahun', fontsize=14)
-    ax.set_ylabel('Jumlah Kejadian Gempa', fontsize=14)
-    ax.grid(axis='both', linestyle='--', alpha=0.7)
-    st.pyplot(fig)
-
-    st.subheader('📉 Tren Kedalaman Gempa per Tahun')
-    avg_depth_per_year = filtered_data.groupby('Year')['depth'].mean()
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.plot(avg_depth_per_year.index, avg_depth_per_year.values, marker='o', color='green')
-    ax.set_title('Tren Kedalaman Gempa per Tahun', fontsize=16, fontweight='bold')
-    ax.set_xlabel('Tahun', fontsize=14)
-    ax.set_ylabel('Rata-rata Kedalaman (km)', fontsize=14)
-    ax.grid(True)
-    st.pyplot(fig)
-
-    st.subheader('🌍 Distribusi Kedalaman Gempa')
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.histplot(data=filtered_data, x='depth', bins=30, kde=True, color='purple', ax=ax)
-    ax.set_title('Distribusi Kedalaman Gempa', fontsize=16, fontweight='bold')
-    ax.set_xlabel('Kedalaman (km)', fontsize=14)
-    ax.set_ylabel('Frekuensi', fontsize=14)
-    ax.grid(axis='y', linestyle='--', alpha=0.7)
-    st.pyplot(fig)
-
-    st.subheader('📍 Distribusi Titik Gempa Berdasarkan Wilayah')
-    region_counts = {}
-    for island, provinces in regions_islands.items():
-        total_count = 0
-        for province in provinces:
-            (lat_min, lat_max), (lon_min, lon_max) = regions_detailed[province]
-            count = filtered_data[(filtered_data['latitude'] >= lat_min) & 
-                                  (filtered_data['latitude'] <= lat_max) & 
-                                  (filtered_data['longitude'] >= lon_min) & 
-                                  (filtered_data['longitude'] <= lon_max)].shape[0]
-            total_count += count
-        region_counts[island] = total_count
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.bar(region_counts.keys(), region_counts.values(), color=['#FF6347', '#1E90FF', '#32CD32', '#FFD700', '#8A2BE2'])
-    ax.set_title('Distribusi Titik Gempa Berdasarkan Wilayah', fontsize=16, fontweight='bold')
-    ax.set_xlabel('Wilayah', fontsize=14)
-    ax.set_ylabel('Jumlah Kejadian Gempa', fontsize=14)
-    ax.grid(axis='y', linestyle='--', alpha=0.7)
-    st.pyplot(fig)
-
-    st.subheader(f"🌍 Heatmap Gempa Bumi ({start_year} - {end_year})")
-    m = folium.Map(location=[-2.5, 118], zoom_start=5)
-    heat_data = [[row['latitude'], row['longitude']] for _, row in filtered_data.iterrows() if not pd.isnull(row['latitude']) and not pd.isnull(row['longitude'])]
-    if heat_data:
-        HeatMap(heat_data, radius=10).add_to(m)
-        st_folium(m, width=700, height=500)
-    else:
+    if filtered_data.empty:
         st.warning("Tidak ada data gempa untuk rentang tahun yang dipilih.")
+    else:
+        st.subheader(f'📈 Tren Aktivitas Gempa dari Tahun {start_year} hingga {end_year}')
+        activity_per_year = filtered_data.groupby('Year').size()
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(activity_per_year.index, activity_per_year.values, marker='o', linestyle='-', color='#FF6347')
+        ax.set_title(f'Tren Aktivitas Gempa {start_year}-{end_year}', fontsize=16, fontweight='bold')
+        ax.set_xlabel('Tahun', fontsize=14)
+        ax.set_ylabel('Jumlah Kejadian Gempa', fontsize=14)
+        ax.grid(axis='both', linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+
+        st.subheader(f'📉 Rata-rata Magnitudo Gempa dari Tahun {start_year} hingga {end_year}')
+        average_magnitude = filtered_data.groupby('Year')['magnitude'].mean()
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(average_magnitude.index, average_magnitude.values, marker='o', color='#32CD32')
+        ax.set_title(f'Rata-rata Magnitudo Gempa {start_year}-{end_year}', fontsize=16, fontweight='bold')
+        ax.set_xlabel('Tahun', fontsize=14)
+        ax.set_ylabel('Rata-rata Magnitudo', fontsize=14)
+        ax.grid(True)
+        st.pyplot(fig)
+
+elif page == "Distribusi Berdasarkan Pulau":
+    st.title('📊 **Distribusi Gempa Berdasarkan Pulau**')
+
+    selected_region = st.selectbox('Pilih Pulau:', list(regions_detailed.keys()))
+    bounds = regions_detailed[selected_region]
+    filtered_region_data = data[(data['latitude'] >= bounds['lat_min']) &
+                                (data['latitude'] <= bounds['lat_max']) &
+                                (data['longitude'] >= bounds['lon_min']) &
+                                (data['longitude'] <= bounds['lon_max'])]
+
+    min_year = int(data['datetime'].min()[:4])
+    max_year = int(data['datetime'].max()[:4])
+    start_year, end_year = st.slider('Pilih Rentang Tahun:', min_value=min_year, max_value=max_year, value=(2008, 2024))
+    filtered_region_data = filter_data_by_year_range(filtered_region_data, start_year, end_year)
+
+    if filtered_region_data.empty:
+        st.warning(f"Tidak ada data gempa untuk wilayah {selected_region}.")
+    else:
+        st.subheader(f'📉 Rata-rata Magnitudo Gempa di Pulau {selected_region} ({start_year}-{end_year})')
+        avg_magnitude = filtered_region_data.groupby('Year')['magnitude'].mean()
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.plot(avg_magnitude.index, avg_magnitude.values, marker='o', color='orange')
+        ax.set_title(f'Rata-rata Magnitudo Gempa di Pulau {selected_region}', fontsize=16, fontweight='bold')
+        ax.set_xlabel('Tahun', fontsize=14)
+        ax.set_ylabel('Rata-rata Magnitudo', fontsize=14)
+        ax.grid(True)
+        st.pyplot(fig)
+
+        st.subheader(f'📊 Frekuensi Gempa per Tahun di Pulau {selected_region}')
+        freq_per_year = filtered_region_data.groupby('Year').size()
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.bar(freq_per_year.index, freq_per_year.values, color='cyan')
+        ax.set_title(f'Frekuensi Gempa per Tahun di Pulau {selected_region}', fontsize=16, fontweight='bold')
+        ax.set_xlabel('Tahun', fontsize=14)
+        ax.set_ylabel('Jumlah Gempa', fontsize=14)
+        ax.grid(axis='y', linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+
+        st.subheader(f'🗺️ Heatmap Gempa di Pulau {selected_region}')
+        m = folium.Map(location=[(bounds['lat_min'] + bounds['lat_max']) / 2, (bounds['lon_min'] + bounds['lon_max']) / 2], zoom_start=6)
+        heat_data = [[row['latitude'], row['longitude']] for _, row in filtered_region_data.iterrows() if not pd.isnull(row['latitude']) and not pd.isnull(row['longitude'])]
+        if heat_data:
+            HeatMap(heat_data, radius=15).add_to(m)
+            st_folium(m, width=700, height=500)
+        else:
+            st.warning("Tidak ada data untuk heatmap pada wilayah ini.")
 
 elif page == "Distribusi Wilayah Detail":
     st.title('📊 **Distribusi Gempa Berdasarkan Wilayah Detail**')
 
     selected_region = st.selectbox('Pilih Wilayah:', list(regions_detailed.keys()))
-
-    (lat_min, lat_max), (lon_min, lon_max) = regions_detailed[selected_region]
-    filtered_region_data = data[(data['latitude'] >= lat_min) & (data['latitude'] <= lat_max) &
-                                (data['longitude'] >= lon_min) & (data['longitude'] <= lon_max)]
+    bounds = regions_detailed[selected_region]
+    filtered_region_data = data[(data['latitude'] >= bounds['lat_min']) &
+                                (data['latitude'] <= bounds['lat_max']) &
+                                (data['longitude'] >= bounds['lon_min']) &
+                                (data['longitude'] <= bounds['lon_max'])]
 
     min_year = int(data['datetime'].min()[:4])
     max_year = int(data['datetime'].max()[:4])
@@ -178,60 +164,6 @@ elif page == "Distribusi Wilayah Detail":
         st.subheader(f'📉 Rata-rata Magnitudo Gempa di Wilayah {selected_region} ({start_year}-{end_year})')
         avg_magnitude = filtered_region_data.groupby('Year')['magnitude'].mean()
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(avg_magnitude.index, avg_magnitude.values, marker='o', color='orange')
+        ax.plot(avg_magnitude.index, avg_magnitude.values, marker='o', color='green')
         ax.set_title(f'Rata-rata Magnitudo Gempa di Wilayah {selected_region}', fontsize=16, fontweight='bold')
         ax.set_xlabel('Tahun', fontsize=14)
-        ax.set_ylabel('Rata-rata Magnitudo', fontsize=14)
-        ax.grid(True)
-        st.pyplot(fig)
-
-        st.subheader(f'📊 Frekuensi Gempa per Tahun di Wilayah {selected_region}')
-        freq_per_year = filtered_region_data.groupby('Year').size()
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.bar(freq_per_year.index, freq_per_year.values, color='cyan')
-        ax.set_title(f'Frekuensi Gempa per Tahun di Wilayah {selected_region}', fontsize=16, fontweight='bold')
-        ax.set_xlabel('Tahun', fontsize=14)
-        ax.set_ylabel('Jumlah Gempa', fontsize=14)
-        ax.grid(axis='y', linestyle='--', alpha=0.7)
-        st.pyplot(fig)
-
-elif page == "Distribusi Berdasarkan Pulau":
-    st.title('📊 **Distribusi Gempa Berdasarkan Pulau**')
-
-    selected_island = st.selectbox('Pilih Pulau:', list(regions_islands.keys()))
-
-    provinces = regions_islands[selected_island]
-    filtered_island_data = pd.DataFrame()
-    for province in provinces:
-        (lat_min, lat_max), (lon_min, lon_max) = regions_detailed[province]
-        province_data = data[(data['latitude'] >= lat_min) & (data['latitude'] <= lat_max) &
-                             (data['longitude'] >= lon_min) & (data['longitude'] <= lon_max)]
-        filtered_island_data = pd.concat([filtered_island_data, province_data])
-
-    min_year = int(data['datetime'].min()[:4])
-    max_year = int(data['datetime'].max()[:4])
-    start_year, end_year = st.slider('Pilih Rentang Tahun:', min_value=min_year, max_value=max_year, value=(2008, 2024))
-    filtered_island_data = filter_data_by_year_range(filtered_island_data, start_year, end_year)
-
-    if filtered_island_data.empty:
-        st.warning(f"Tidak ada data gempa untuk Pulau {selected_island}.")
-    else:
-        st.subheader(f'📉 Rata-rata Magnitudo Gempa di Pulau {selected_island} ({start_year}-{end_year})')
-        avg_magnitude = filtered_island_data.groupby('Year')['magnitude'].mean()
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(avg_magnitude.index, avg_magnitude.values, marker='o', color='green')
-        ax.set_title(f'Rata-rata Magnitudo Gempa di Pulau {selected_island}', fontsize=16, fontweight='bold')
-        ax.set_xlabel('Tahun', fontsize=14)
-        ax.set_ylabel('Rata-rata Magnitudo', fontsize=14)
-        ax.grid(True)
-        st.pyplot(fig)
-
-        st.subheader(f'📊 Frekuensi Gempa per Tahun di Pulau {selected_island}')
-        freq_per_year = filtered_island_data.groupby('Year').size()
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.bar(freq_per_year.index, freq_per_year.values, color='lime')
-        ax.set_title(f'Frekuensi Gempa per Tahun di Pulau {selected_island}', fontsize=16, fontweight='bold')
-        ax.set_xlabel('Tahun', fontsize=14)
-        ax.set_ylabel('Jumlah Gempa', fontsize=14)
-        ax.grid(axis='y', linestyle='--', alpha=0.7)
-        st.pyplot(fig)
