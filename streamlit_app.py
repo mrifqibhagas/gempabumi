@@ -5,6 +5,8 @@ import streamlit as st
 from folium.plugins import HeatMap
 from streamlit_folium import st_folium
 import folium
+from sklearn.cluster import KMeans
+from wordcloud import WordCloud
 
 # Fungsi untuk memfilter data berdasarkan rentang tahun
 def filter_data_by_year_range(data, start_year, end_year):
@@ -255,4 +257,25 @@ elif page == "Korelasi dan Distribusi":
     ax.set_title('Distribusi Waktu Gempa', fontsize=16, fontweight='bold')
     ax.set_xlabel('Jam (24 Jam)', fontsize=14)
     ax.set_ylabel('Frekuensi', fontsize=14)
+    st.pyplot(fig)
+
+
+elif page == "Clustering Lokasi":
+    st.title('📊 **Clustering Lokasi Gempa**')
+
+    st.subheader("🗺️ Clustering dengan K-Means")
+    num_clusters = st.slider('Pilih Jumlah Cluster:', min_value=2, max_value=10, value=4)
+
+    # Preprocessing data
+    clustering_data = data[['latitude', 'longitude']].dropna()
+    kmeans = KMeans(n_clusters=num_clusters, random_state=0)
+    clustering_data['cluster'] = kmeans.fit_predict(clustering_data)
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.scatterplot(
+        data=clustering_data, x='longitude', y='latitude', hue='cluster', palette='viridis', ax=ax
+    )
+    ax.set_title('Hasil Clustering Lokasi Gempa', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Longitude', fontsize=14)
+    ax.set_ylabel('Latitude', fontsize=14)
     st.pyplot(fig)
