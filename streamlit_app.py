@@ -71,7 +71,7 @@ elif page == "Visualisasi Berdasarkan Tahun":
     max_year = int(data['datetime'].max()[:4])
     start_year, end_year = st.slider('Pilih Rentang Tahun:', min_value=min_year, max_value=max_year, value=(2008, 2024))
 
-    filtered_data = filter_data_by_year _range(data, start_year, end_year)
+    filtered_data = filter_data_by_year_range(data, start_year, end_year)
 
     if filtered_data.empty:
         st.warning("Tidak ada data gempa untuk rentang tahun yang dipilih.")
