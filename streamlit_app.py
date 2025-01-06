@@ -38,9 +38,6 @@ if page == "Beranda":
     st.header('Selamat datang di aplikasi Visualisasi Data Gempa Indonesia')
     st.write('Silakan pilih halaman di sidebar untuk memulai analisis.')
 
-    # Periksa kolom dalam dataset
-    st.write("Kolom dalam dataset:", data.columns)
-
     # Cek apakah data memiliki kolom magnitudo dan tidak kosong
     if 'magnitude' in data.columns and not data.empty:
         # Informasi Gempa terkuat
