@@ -71,7 +71,7 @@ elif page == "Visualisasi Berdasarkan Tahun":
     max_year = int(data['datetime'].max()[:4])
     start_year, end_year = st.slider('Pilih Rentang Tahun:', min_value=min_year, max_value=max_year, value=(2008, 2024))
 
-    filtered_data = filter_data_by_year_range(data, start_year, end_year)
+    filtered_data = filter_data_by_year _range(data, start_year, end_year)
 
     if filtered_data.empty:
         st.warning("Tidak ada data gempa untuk rentang tahun yang dipilih.")
@@ -167,3 +167,24 @@ elif page == "Distribusi Wilayah Detail":
         ax.plot(avg_magnitude.index, avg_magnitude.values, marker='o', color='green')
         ax.set_title(f'Rata-rata Magnitudo Gempa di Wilayah {selected_region}', fontsize=16, fontweight='bold')
         ax.set_xlabel('Tahun', fontsize=14)
+        ax.set_ylabel('Rata-rata Magnitudo', fontsize=14)
+        ax.grid(True)
+        st.pyplot(fig) ```python
+        st.subheader(f'📊 Frekuensi Gempa per Tahun di Wilayah {selected_region}')
+        freq_per_year = filtered_region_data.groupby('Year').size()
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.bar(freq_per_year.index, freq_per_year.values, color='lightblue')
+        ax.set_title(f'Frekuensi Gempa per Tahun di Wilayah {selected_region}', fontsize=16, fontweight='bold')
+        ax.set_xlabel('Tahun', fontsize=14)
+        ax.set_ylabel('Jumlah Gempa', fontsize=14)
+        ax.grid(axis='y', linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+
+        st.subheader(f'🗺️ Heatmap Gempa di Wilayah {selected_region}')
+        m = folium.Map(location=[(bounds['lat_min'] + bounds['lat_max']) / 2, (bounds['lon_min'] + bounds['lon_max']) / 2], zoom_start=6)
+        heat_data = [[row['latitude'], row['longitude']] for _, row in filtered_region_data.iterrows() if not pd.isnull(row['latitude']) and not pd.isnull(row['longitude'])]
+        if heat_data:
+            HeatMap(heat_data, radius=15).add_to(m)
+            st_folium(m, width=700, height=500)
+        else:
+            st.warning("Tidak ada data untuk heatmap pada wilayah ini.")
