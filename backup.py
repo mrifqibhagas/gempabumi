@@ -5,6 +5,11 @@ import streamlit as st
 from folium.plugins import HeatMap
 from streamlit_folium import st_folium
 import folium
+from sklearn.cluster import KMeans
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.model_selection import train_test_split
+from sklearn.metrics import classification_report
+import numpy as np
 
 # Fungsi untuk memfilter data berdasarkan rentang tahun
 def filter_data_by_year_range(data, start_year, end_year):
@@ -20,7 +25,14 @@ data = pd.read_csv(file_path, sep=';', low_memory=False)
 st.title('📊 **Visualisasi Data Gempa Indonesia**')
 
 # Sidebar untuk memilih halaman
-page = st.sidebar.selectbox("Pilih Halaman", ["Beranda", "Visualisasi Berdasarkan Tahun", "Visualisasi Berdasarkan Pulau"])
+page = st.sidebar.selectbox("Pilih Halaman", [
+    "Beranda", 
+    "Visualisasi Berdasarkan Tahun", 
+    "Visualisasi Berdasarkan Pulau",
+    "Clustering Lokasi Gempa",
+    "Prediksi Risiko Wilayah"
+])
+
 
 if page == "Beranda":
     st.header('Selamat datang di aplikasi Visualisasi Data Gempa Indonesia')
@@ -247,3 +259,94 @@ elif page == "Visualisasi Berdasarkan Pulau":
         st_folium(m, width=700, height=500)
     else:
         st.warning(f"Tidak ada data gempa di Pulau {selected_island}.")
+
+
+# Halaman Clustering Lokasi Gempa
+elif page == "Clustering Lokasi Gempa":
+    st.subheader('📊 Clustering Lokasi Gempa')
+
+    # Filter data dengan kolom yang relevan dan tanpa NaN
+    clustering_data = data[['latitude', 'longitude', 'magnitude']].dropna()
+
+    # Pilih jumlah cluster
+    num_clusters = st.slider('Pilih Jumlah Cluster:', min_value=2, max_value=10, value=3)
+
+    # K-Means clustering
+    kmeans = KMeans(n_clusters=num_clusters, random_state=42)
+    clustering_data['cluster'] = kmeans.fit_predict(clustering_data)
+
+    # Visualisasi hasil clustering pada scatter plot
+    fig, ax = plt.subplots(figsize=(10, 6))
+    scatter = ax.scatter(
+        clustering_data['longitude'], clustering_data['latitude'],
+        c=clustering_data['cluster'], cmap='viridis', alpha=0.7
+    )
+    legend = ax.legend(*scatter.legend_elements(), title="Cluster")
+    ax.add_artist(legend)
+    ax.set_title('Hasil Clustering Lokasi Gempa', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Longitude', fontsize=14)
+    ax.set_ylabel('Latitude', fontsize=14)
+    st.pyplot(fig)
+
+# Halaman Prediksi Risiko Wilayah
+elif page == "Prediksi Risiko Wilayah":
+    st.subheader('📈 Prediksi Tingkat Risiko Wilayah')
+
+    # Menambahkan kolom risiko: High (1) jika magnitudo > 6, Low (0) jika magnitudo <= 6
+    data['risk'] = np.where(data['magnitude'] > 6, 1, 0)
+
+    # Fitur dan label
+    features = ['latitude', 'longitude', 'depth']
+    X = data[features].dropna()
+    y = data['risk'][X.index]
+
+    # Split data untuk training dan testing
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+    # Random Forest Classifier
+    model = RandomForestClassifier(random_state=42, class_weight='balanced')
+    model.fit(X_train, y_train)
+
+    # Prediksi pada data testing
+    y_pred = model.predict(X_test)
+
+    # Menampilkan hasil evaluasi model
+    st.text('Hasil Evaluasi Model:')
+    st.text(classification_report(y_test, y_pred))
+
+    # Visualisasi prediksi pada data test
+    st.subheader('Visualisasi Prediksi Risiko')
+    fig, ax = plt.subplots(figsize=(10, 6))
+    scatter = ax.scatter(
+        X_test['longitude'], X_test['latitude'],
+        c=y_pred, cmap='coolwarm', alpha=0.7
+    )
+    legend = ax.legend(*scatter.legend_elements(), title="Predicted Risk")
+    ax.add_artist(legend)
+    ax.set_title('Hasil Prediksi Risiko', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Longitude', fontsize=14)
+    ax.set_ylabel('Latitude', fontsize=14)
+    st.pyplot(fig)
+
+    st.subheader('🗺️ Visualisasi Risiko Wilayah pada Peta')
+    m = folium.Map(location=[data['latitude'].mean(), data['longitude'].mean()], zoom_start=5)
+    
+    # Tambahkan marker berdasarkan risiko
+    for features, prediction in zip(X_test.itertuples(index=False), y_pred):
+        color = 'red' if prediction == 1 else 'green'
+        folium.CircleMarker(
+            location=[features.latitude, features.longitude],
+            radius=5,
+            color=color,
+            fill=True,
+            fill_color=color,
+            fill_opacity=0.7,
+            popup=f"Risk: {'High' if prediction == 1 else 'Low'}"
+        ).add_to(m)
+    
+    # Tampilkan peta di Streamlit
+    st_folium(m, width=700, height=500)
+
+
+
+
