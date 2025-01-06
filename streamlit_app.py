@@ -128,6 +128,27 @@ elif page == "Visualisasi Berdasarkan Tahun":
     ax.grid(axis='y', linestyle='--', alpha=0.7)
     st.pyplot(fig)
 
+    st.subheader('📍 Distribusi Titik Gempa Berdasarkan Wilayah')
+    region_counts = {}
+    for island, provinces in regions_islands.items():
+        total_count = 0
+        for province in provinces:
+            (lat_min, lat_max), (lon_min, lon_max) = regions_detailed[province]
+            count = filtered_data[(filtered_data['latitude'] >= lat_min) & 
+                                  (filtered_data['latitude'] <= lat_max) & 
+                                  (filtered_data['longitude'] >= lon_min) & 
+                                  (filtered_data['longitude'] <= lon_max)].shape[0]
+            total_count += count
+        region_counts[island] = total_count
+
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.bar(region_counts.keys(), region_counts.values(), color=['#FF6347', '#1E90FF', '#32CD32', '#FFD700', '#8A2BE2'])
+    ax.set_title('Distribusi Titik Gempa Berdasarkan Wilayah', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Wilayah', fontsize=14)
+    ax.set_ylabel('Jumlah Kejadian Gempa', fontsize=14)
+    ax.grid(axis='y', linestyle='--', alpha=0.7)
+    st.pyplot(fig)
+
     st.subheader(f"🌍 Heatmap Gempa Bumi ({start_year} - {end_year})")
     m = folium.Map(location=[-2.5, 118], zoom_start=5)
     heat_data = [[row['latitude'], row['longitude']] for _, row in filtered_data.iterrows() if not pd.isnull(row['latitude']) and not pd.isnull(row['longitude'])]
