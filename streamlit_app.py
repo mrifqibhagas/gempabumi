@@ -99,6 +99,16 @@ elif page == "Visualisasi Berdasarkan Tahun":
     ax.grid(True)
     st.pyplot(fig)
 
+    st.subheader('📈 Tren Aktivitas Gempa per Tahun')
+    activity_per_year = filtered_data.groupby('Year').size()
+    fig, ax = plt.subplots(figsize=(10, 6))
+    ax.plot(activity_per_year.index, activity_per_year.values, marker='o', linestyle='-', color='#FF6347')
+    ax.set_title('Tren Aktivitas Gempa per Tahun', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Tahun', fontsize=14)
+    ax.set_ylabel('Jumlah Kejadian Gempa', fontsize=14)
+    ax.grid(axis='both', linestyle='--', alpha=0.7)
+    st.pyplot(fig)
+
     st.subheader('📉 Tren Kedalaman Gempa per Tahun')
     avg_depth_per_year = filtered_data.groupby('Year')['depth'].mean()
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -117,6 +127,15 @@ elif page == "Visualisasi Berdasarkan Tahun":
     ax.set_ylabel('Frekuensi', fontsize=14)
     ax.grid(axis='y', linestyle='--', alpha=0.7)
     st.pyplot(fig)
+
+    st.subheader(f"🌍 Heatmap Gempa Bumi ({start_year} - {end_year})")
+    m = folium.Map(location=[-2.5, 118], zoom_start=5)
+    heat_data = [[row['latitude'], row['longitude']] for _, row in filtered_data.iterrows() if not pd.isnull(row['latitude']) and not pd.isnull(row['longitude'])]
+    if heat_data:
+        HeatMap(heat_data, radius=10).add_to(m)
+        st_folium(m, width=700, height=500)
+    else:
+        st.warning("Tidak ada data gempa untuk rentang tahun yang dipilih.")
 
 elif page == "Distribusi Wilayah Detail":
     st.title('📊 **Distribusi Gempa Berdasarkan Wilayah Detail**')
