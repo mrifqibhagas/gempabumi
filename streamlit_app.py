@@ -39,7 +39,7 @@ if page == "Beranda":
     st.write('Silakan pilih halaman di sidebar untuk memulai analisis.')
 
     # Informasi Gempa terkuat
-    gempa_terkuat = data.nlargest(10, 'mag')
+    gempa_terkuat = data.nlargest(10, 'magnitude')
     gempa_terkuat
 
 # Halaman Visualisasi Berdasarkan Tahun
