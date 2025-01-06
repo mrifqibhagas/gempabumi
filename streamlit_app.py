@@ -181,8 +181,6 @@ elif page == "Visualisasi Berdasarkan Tahun":
         ax.grid(axis='y', linestyle='--', alpha=0.7)
         st.pyplot(fig)
 
-        st.title('📊 **Frekuensi Gempa Berdasarkan Kedalaman**')
-    
         # Kategorisasi kedalaman
         data['Depth Category'] = pd.cut(data['depth'], bins=[0, 70, 300, float('inf')], labels=['Dangkal', 'Menengah', 'Dalam'])
     
