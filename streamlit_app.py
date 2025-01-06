@@ -72,6 +72,24 @@ if page == "Beranda":
     if 'magnitude' in data.columns and 'location' in data.columns and not data.empty:
         gempa_terkuat = data.nlargest(10, 'magnitude').reset_index(drop=True)
 
+        st.subheader("🔍 Gempa di Indonesia")
+        # Pastikan kolom 'datetime' dalam format datetime
+        data['datetime'] = pd.to_datetime(data['datetime'], errors='coerce')
+        
+        # Menghitung total jumlah gempa
+        total_gempa = len(data)
+        
+        # Menghitung jumlah gempa per hari
+        gempa_per_hari = data['datetime'].dt.date.value_counts()
+        
+        # Menghitung rata-rata jumlah gempa per hari
+        rata_rata_per_hari = gempa_per_hari.mean()
+
+        # Menampilkan informasi di halaman beranda
+        st.subheader("📊 Statistik Gempa")
+        st.write(f"**Total Jumlah Gempa:** {total_gempa}")
+        st.write(f"**Rata-rata Jumlah Gempa per Hari:** {rata_rata_per_hari:.2f}")
+
         st.subheader("🔍 10 Gempa Terkuat di Dataset")
         st.table(gempa_terkuat[['location', 'magnitude', 'datetime']])
 
