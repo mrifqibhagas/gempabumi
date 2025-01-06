@@ -146,7 +146,7 @@ elif page == "Distribusi Berdasarkan Pulau":
     filtered_region_data = data[(data['latitude'] >= bounds['lat_min']) &
                                 (data['latitude'] <= bounds['lat_max']) &
                                 (data['longitude'] >= bounds['lon_min']) &
-                                (data['longitude'] <= bounds[' lon_max'])]
+                                (data['longitude'] <= bounds['lon_max'])]
 
     min_year = int(data['datetime'].min()[:4])
     max_year = int(data['datetime'].max()[:4])
