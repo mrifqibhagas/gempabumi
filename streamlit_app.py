@@ -169,7 +169,8 @@ elif page == "Distribusi Wilayah Detail":
         ax.set_xlabel('Tahun', fontsize=14)
         ax.set_ylabel('Rata-rata Magnitudo', fontsize=14)
         ax.grid(True)
-        st.pyplot(fig) ```python
+        st.pyplot(fig)
+        
         st.subheader(f'📊 Frekuensi Gempa per Tahun di Wilayah {selected_region}')
         freq_per_year = filtered_region_data.groupby('Year').size()
         fig, ax = plt.subplots(figsize=(10, 6))
