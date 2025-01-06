@@ -155,6 +155,35 @@ elif page == "Visualisasi Berdasarkan Tahun":
         ax.grid(True)
         st.pyplot(fig)
 
+        # Fungsi untuk mengkategorikan gempa berdasarkan magnitudo
+        def kategori_gempa(magnitude):
+            if magnitude < 4.0:
+                return 'Minor'
+            elif 4.0 <= magnitude < 5.0:
+                return 'Ringan'
+            elif 5.0 <= magnitude < 6.0:
+                return 'Sedang'
+            elif 6.0 <= magnitude < 7.0:
+                return 'Kuat'
+            else:
+                return 'Besar'
+        
+        # Menambahkan kolom kategori ke DataFrame
+        data['Kategori'] = data['magnitude'].apply(kategori_gempa)
+        
+        # Menghitung jumlah gempa per kategori
+        kategori_counts = data['Kategori'].value_counts().reindex(['Minor', 'Ringan', 'Sedang', 'Kuat', 'Besar'], fill_value=0)
+        
+        # Visualisasi menggunakan bar chart
+        fig, ax = plt.subplots(figsize=(10, 6))
+        kategori_counts.plot(kind='bar', color=['#4CAF50', '#2196F3', '#FFC107', '#FF5722', '#F44336'], ax=ax)
+        ax.set_title('Distribusi Kategori Gempa Berdasarkan Magnitudo', fontsize=16, fontweight='bold')
+        ax.set_xlabel('Kategori Gempa', fontsize=14)
+        ax.set_ylabel('Jumlah Kejadian', fontsize=14)
+        ax.grid(axis='y', linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+
+
         # Distribusi Titik Gempa Berdasarkan Wilayah
         st.subheader('📍 Distribusi Titik Gempa Berdasarkan Wilayah')
         region_counts = {}
