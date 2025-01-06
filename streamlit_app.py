@@ -58,14 +58,17 @@ if page == "Beranda":
         st.subheader("🔍 10 Gempa Terkuat di Dataset")
         st.table(gempa_terkuat[['location', 'magnitude', 'datetime']])
 
+        # Menambahkan kolom baru untuk lokasi dan tahun
+        gempa_terkuat['Year_Location'] = gempa_terkuat['location'] + ' (' + pd.to_datetime(gempa_terkuat['datetime']).dt.year.astype(str) + ')'
+        
         # Menampilkan Chart Magnitudo terhadap Lokasi (Datetime)
-        st.subheader("📊 Chart Magnitudo terhadap Lokasi (Datetime)")
+        st.subheader("📊 Chart Magnitudo terhadap Lokasi (Tahun)")
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.bar(gempa_terkuat['datetime'], gempa_terkuat['magnitude'], color='orange')
-        ax.set_title('Magnitudo Gempa Terkuat Berdasarkan Waktu', fontsize=16, fontweight='bold')
-        ax.set_xlabel('Tanggal dan Waktu', fontsize=14)
+        ax.bar(gempa_terkuat['Year_Location'], gempa_terkuat['magnitude'], color='orange')
+        ax.set_title('Magnitudo Gempa Terkuat Berdasarkan Lokasi dan Tahun', fontsize=16, fontweight='bold')
+        ax.set_xlabel('Lokasi (Tahun)', fontsize=14)
         ax.set_ylabel('Magnitudo', fontsize=14)
-        ax.set_xticklabels(gempa_terkuat['datetime'], rotation=45, ha='right')
+        ax.set_xticklabels(gempa_terkuat['Year_Location'], rotation=45, ha='right')
         ax.grid(axis='y', linestyle='--', alpha=0.7)
         st.pyplot(fig)
 
