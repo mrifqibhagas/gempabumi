@@ -57,7 +57,9 @@ st.markdown(
 page = st.sidebar.selectbox("Pilih Halaman", [
     "Beranda", 
     "Visualisasi Berdasarkan Tahun", 
-    "Distribusi Berdasarkan Pulau"
+    "Distribusi Berdasarkan Pulau",
+    "Korelasi dan Distribusi",
+    "Clustering Lokasi"
 ])
 
 if page == "Beranda":
@@ -234,3 +236,23 @@ elif page == "Distribusi Berdasarkan Pulau":
             st_folium(m, width=700, height=500)
         else:
             st.warning("Tidak ada data untuk heatmap pada wilayah ini.")
+
+
+elif page == "Korelasi dan Distribusi":
+    st.title('📊 **Korelasi dan Distribusi Data Gempa**')
+    st.subheader("📉 Korelasi Kedalaman vs Magnitudo")
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.scatterplot(data=data, x='depth', y='magnitude', alpha=0.6, ax=ax, color='green')
+    ax.set_title('Korelasi Kedalaman vs Magnitudo', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Kedalaman (km)', fontsize=14)
+    ax.set_ylabel('Magnitudo', fontsize=14)
+    st.pyplot(fig)
+
+    st.subheader("🌍 Distribusi Waktu Gempa")
+    data['hour'] = pd.to_datetime(data['datetime']).dt.hour
+    fig, ax = plt.subplots(figsize=(10, 6))
+    sns.histplot(data=data, x='hour', bins=24, kde=False, ax=ax, color='blue')
+    ax.set_title('Distribusi Waktu Gempa', fontsize=16, fontweight='bold')
+    ax.set_xlabel('Jam (24 Jam)', fontsize=14)
+    ax.set_ylabel('Frekuensi', fontsize=14)
+    st.pyplot(fig)
