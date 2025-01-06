@@ -38,15 +38,34 @@ if page == "Beranda":
     st.header('Selamat datang di aplikasi Visualisasi Data Gempa Indonesia')
     st.write('Silakan pilih halaman di sidebar untuk memulai analisis.')
 
+    # Periksa kolom dalam dataset
+    st.write("Kolom dalam dataset:", data.columns)
+
     # Cek apakah data memiliki kolom magnitudo dan tidak kosong
-    if 'magnitude' in data.columns and not data.empty:
+    if 'magnitude' in data.columns and 'location' in data.columns and not data.empty:
         # Informasi Gempa terkuat
         gempa_terkuat = data.nlargest(10, 'magnitude')
+        
         st.subheader("🔍 10 Gempa Terkuat di Dataset")
-        st.dataframe(gempa_terkuat)
+        for i, row in gempa_terkuat.iterrows():
+            st.write(f"{i+1}. {row['location']} - Magnitudo: {row['magnitude']} - Tahun: {pd.to_datetime(row['datetime']).year}")
+        
+        # Peta lokasi gempa terkuat
+        st.subheader("🗺️ Lokasi 10 Gempa Terkuat")
+        m = folium.Map(location=[gempa_terkuat['latitude'].mean(), gempa_terkuat['longitude'].mean()], zoom_start=5)
+        for _, row in gempa_terkuat.iterrows():
+            folium.Marker(
+                location=[row['latitude'], row['longitude']],
+                popup=(
+                    f"<b>Lokasi:</b> {row['location']}<br>"
+                    f"<b>Magnitudo:</b> {row['magnitude']}<br>"
+                    f"<b>Tahun:</b> {pd.to_datetime(row['datetime']).year}"
+                ),
+                icon=folium.Icon(color='red', icon='info-sign')
+            ).add_to(m)
+        st_folium(m, width=700, height=500)
     else:
-        st.warning("Kolom 'magnitude' tidak ditemukan dalam dataset atau dataset kosong.")
-
+        st.warning("Kolom 'magnitude', 'location', atau dataset kosong. Mohon periksa kembali dataset Anda.")
 # Halaman Visualisasi Berdasarkan Tahun
 elif page == "Visualisasi Berdasarkan Tahun":
     # Input rentang tahun dari pengguna
