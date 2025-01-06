@@ -87,8 +87,8 @@ if page == "Beranda":
 
         # Menampilkan informasi di halaman beranda
         st.subheader("📊 Statistik Gempa")
-        st.write(f"**Total Jumlah Gempa:** {total_gempa}")
-        st.write(f"**Rata-rata Jumlah Gempa per Hari:** {rata_rata_per_hari:.2f}")
+        st.write(f"**Total Jumlah Gempa (2008-2024):** {total_gempa}")
+        st.write(f"**Rata-rata Jumlah Gempa per Hari (2008-2024):** {rata_rata_per_hari:.2f}")
 
         st.subheader("🔍 10 Gempa Terkuat di Dataset")
         st.table(gempa_terkuat[['location', 'magnitude', 'datetime']])
