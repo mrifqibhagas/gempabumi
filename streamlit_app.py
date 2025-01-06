@@ -251,7 +251,12 @@ elif page == "Korelasi dan Distribusi":
     st.pyplot(fig)
 
     st.subheader("🌍 Distribusi Waktu Gempa")
-    data['hour'] = pd.to_datetime(data['datetime']).dt.hour
+    # Pastikan datetime valid dengan errors='coerce'
+    data['hour'] = pd.to_datetime(data['datetime'], errors='coerce').dt.hour
+
+    # Filter baris dengan datetime tidak valid
+    data = data.dropna(subset=['hour'])
+
     fig, ax = plt.subplots(figsize=(10, 6))
     sns.histplot(data=data, x='hour', bins=24, kde=False, ax=ax, color='blue')
     ax.set_title('Distribusi Waktu Gempa', fontsize=16, fontweight='bold')
