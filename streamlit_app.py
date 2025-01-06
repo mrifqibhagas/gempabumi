@@ -181,6 +181,23 @@ elif page == "Visualisasi Berdasarkan Tahun":
         ax.grid(axis='y', linestyle='--', alpha=0.7)
         st.pyplot(fig)
 
+        st.title('📊 **Frekuensi Gempa Berdasarkan Kedalaman**')
+    
+        # Kategorisasi kedalaman
+        data['Depth Category'] = pd.cut(data['depth'], bins=[0, 70, 300, float('inf')], labels=['Dangkal', 'Menengah', 'Dalam'])
+    
+        # Hitung frekuensi setiap kategori
+        depth_freq = data['Depth Category'].value_counts().sort_index()
+    
+        # Visualisasi
+        st.subheader("📊 Histogram Frekuensi Gempa Berdasarkan Kedalaman")
+        fig, ax = plt.subplots(figsize=(10, 6))
+        sns.barplot(x=depth_freq.index, y=depth_freq.values, palette="viridis", ax=ax)
+        ax.set_title('Frekuensi Gempa Berdasarkan Kedalaman', fontsize=16, fontweight='bold')
+        ax.set_xlabel('Kategori Kedalaman', fontsize=14)
+        ax.set_ylabel('Frekuensi', fontsize=14)
+        st.pyplot(fig)
+
         
         # Heatmap
         st.subheader('🗺️ Heatmap Gempa')
