@@ -183,4 +183,4 @@ elif page == "Distribusi Berdasarkan Pulau":
             HeatMap(heat_data, radius=15).add_to(m)
             st_folium(m, width=700, height=500)
         else:
-            st.warning("Tidak ada data untuk heatmap pada wilayah ini.") **
+            st.warning("Tidak ada data untuk heatmap pada wilayah ini.")
