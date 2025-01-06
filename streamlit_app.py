@@ -15,6 +15,30 @@ def filter_data_by_year_range(data, start_year, end_year):
 file_path = 'katalog_gempa2.csv'  # Ganti dengan path file Anda
 data = pd.read_csv(file_path, sep=';', low_memory=False)
 
+# Definisi wilayah lebih rinci berdasarkan provinsi
+regions_detailed = {
+    'Aceh': ((4, 6), (95, 98)),
+    'Sumatera Utara': ((1, 4), (98, 101)),
+    'Sumatera Selatan': ((-4, 0), (103, 106)),
+    'Jawa Barat': ((-7, -5), (105, 108)),
+    'Jawa Timur': ((-9, -7), (112, 115)),
+    'Kalimantan Selatan': ((-4, -2), (114, 117)),
+    'Kalimantan Timur': ((0, 3), (116, 119)),
+    'Sulawesi Selatan': ((-6, -4), (119, 122)),
+    'Sulawesi Utara': ((0, 3), (122, 125)),
+    'Papua Barat': ((-5, 0), (131, 136)),
+    'Papua Tengah': ((-6, -3), (136, 141))
+}
+
+# Definisi wilayah berdasarkan pulau
+regions_islands = {
+    'Sumatera': ['Aceh', 'Sumatera Utara', 'Sumatera Selatan'],
+    'Jawa': ['Jawa Barat', 'Jawa Timur'],
+    'Kalimantan': ['Kalimantan Selatan', 'Kalimantan Timur'],
+    'Sulawesi': ['Sulawesi Selatan', 'Sulawesi Utara'],
+    'Papua': ['Papua Barat', 'Papua Tengah']
+}
+
 # Streamlit UI
 st.title('📊 **Visualisasi Data Gempa Indonesia**')
 
@@ -22,7 +46,8 @@ st.title('📊 **Visualisasi Data Gempa Indonesia**')
 page = st.sidebar.selectbox("Pilih Halaman", [
     "Beranda", 
     "Visualisasi Berdasarkan Tahun", 
-    "Visualisasi Berdasarkan Pulau"
+    "Distribusi Wilayah Detail",
+    "Distribusi Berdasarkan Pulau"
 ])
 
 if page == "Beranda":
@@ -64,29 +89,6 @@ elif page == "Visualisasi Berdasarkan Tahun":
     min_mag, max_mag = st.slider('Pilih Rentang Magnitudo:', min_value=float(data['magnitude'].min()), max_value=float(data['magnitude'].max()), value=(0.64, 7.92))
     filtered_data = filtered_data[(filtered_data['magnitude'] >= min_mag) & (filtered_data['magnitude'] <= max_mag)]
 
-    st.subheader('📍 Distribusi Titik Gempa Berdasarkan Wilayah')
-    regions = {
-        'Sumatera': ((-6, 6), (95, 105)),
-        'Jawa': ((-9, -5), (105, 115)),
-        'Kalimantan': ((-4, 3), (108, 119)),
-        'Sulawesi': ((-3, 2), (119, 125)),
-        'Papua': ((-10, 0), (131, 141))
-    }
-
-    region_counts = {}
-    for region, ((lat_min, lat_max), (lon_min, lon_max)) in regions.items():
-        count = filtered_data[(filtered_data['latitude'] >= lat_min) & (filtered_data['latitude'] <= lat_max) &
-                              (filtered_data['longitude'] >= lon_min) & (filtered_data['longitude'] <= lon_max)].shape[0]
-        region_counts[region] = count
-
-    fig, ax = plt.subplots(figsize=(10, 6))
-    ax.bar(region_counts.keys(), region_counts.values(), color=['#FF6347', '#1E90FF', '#32CD32', '#FFD700', '#8A2BE2'])
-    ax.set_title('Distribusi Titik Gempa Berdasarkan Wilayah', fontsize=16, fontweight='bold')
-    ax.set_xlabel('Wilayah', fontsize=14)
-    ax.set_ylabel('Jumlah Kejadian Gempa', fontsize=14)
-    ax.grid(axis='y', linestyle='--', alpha=0.7)
-    st.pyplot(fig)
-
     st.subheader('📈 Tren Aktivitas Gempa per Tahun')
     activity_per_year = filtered_data.groupby('Year').size()
     fig, ax = plt.subplots(figsize=(10, 6))
@@ -106,50 +108,53 @@ elif page == "Visualisasi Berdasarkan Tahun":
     else:
         st.warning("Tidak ada data gempa untuk rentang tahun yang dipilih.")
 
-elif page == "Visualisasi Berdasarkan Pulau":
-    st.title('📊 **Visualisasi Berdasarkan Pulau**')
+elif page == "Distribusi Wilayah Detail":
+    st.title('📊 **Distribusi Gempa Berdasarkan Wilayah Detail**')
 
-    islands = ['Sumatera', 'Jawa', 'Kalimantan', 'Sulawesi', 'Papua']
-    selected_island = st.selectbox('Pilih Pulau:', islands)
+    selected_region = st.selectbox('Pilih Wilayah:', list(regions_detailed.keys()))
 
-    min_year = int(data['datetime'].min()[:4])
-    max_year = int(data['datetime'].max()[:4])
-    start_year, end_year = st.slider('Pilih Rentang Tahun:', min_value=min_year, max_value=max_year, value=(2008, 2024))
-
-    regions = {
-        'Sumatera': ((-6, 6), (95, 105)),
-        'Jawa': ((-9, -5), (105, 115)),
-        'Kalimantan': ((-4, 3), (108, 119)),
-        'Sulawesi': ((-3, 2), (119, 125)),
-        'Papua': ((-10, 0), (131, 141))
-    }
-
-    (lat_min, lat_max), (lon_min, lon_max) = regions[selected_island]
-    filtered_island_data = data[(data['latitude'] >= lat_min) & (data['latitude'] <= lat_max) &
+    (lat_min, lat_max), (lon_min, lon_max) = regions_detailed[selected_region]
+    filtered_region_data = data[(data['latitude'] >= lat_min) & (data['latitude'] <= lat_max) &
                                 (data['longitude'] >= lon_min) & (data['longitude'] <= lon_max)]
-    filtered_island_data = filter_data_by_year_range(filtered_island_data, start_year, end_year)
 
-    min_mag, max_mag = st.slider('Pilih Rentang Magnitudo:', min_value=float(data['magnitude'].min()), max_value=float(data['magnitude'].max()), value=(0.64, 7.92))
-    filtered_island_data = filtered_island_data[(filtered_island_data['magnitude'] >= min_mag) & (filtered_island_data['magnitude'] <= max_mag)]
-
-    if filtered_island_data.empty:
-        st.warning(f"Tidak ada data gempa untuk Pulau {selected_island} dalam rentang tahun yang dipilih.")
+    if filtered_region_data.empty:
+        st.warning(f"Tidak ada data gempa untuk wilayah {selected_region}.")
     else:
-        st.subheader(f'📉 Rata-rata Magnitudo Gempa di Pulau {selected_island} ({start_year}-{end_year})')
-        avg_magnitude = filtered_island_data.groupby('Year')['magnitude'].mean()
-
+        st.subheader(f"📍 Distribusi Titik Gempa di Wilayah {selected_region}")
         fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(avg_magnitude.index, avg_magnitude.values, marker='o', color='green')
-        ax.set_title(f'Rata-rata Magnitudo Gempa di Pulau {selected_island}', fontsize=16, fontweight='bold')
-        ax.set_xlabel('Tahun', fontsize=14)
-        ax.set_ylabel('Rata-rata Magnitudo', fontsize=14)
-        ax.grid(True)
+        sns.histplot(data=filtered_region_data, x='magnitude', bins=20, kde=True, color='blue', ax=ax)
+        ax.set_title(f'Distribusi Magnitudo Gempa di Wilayah {selected_region}', fontsize=16, fontweight='bold')
+        ax.set_xlabel('Magnitudo', fontsize=14)
+        ax.set_ylabel('Frekuensi', fontsize=14)
         st.pyplot(fig)
 
-        st.subheader(f'🗺️ Heatmap Magnitudo di Pulau {selected_island}')
-        filtered_island_data_cleaned = filtered_island_data.dropna(subset=['latitude', 'longitude', 'magnitude'])
-        m = folium.Map(location=[(lat_min + lat_max) / 2, (lon_min + lon_max) / 2], zoom_start=6)
-        heat_data = [[row['latitude'], row['longitude'], row['magnitude']] for _, row in filtered_island_data_cleaned.iterrows()]
+elif page == "Distribusi Berdasarkan Pulau":
+    st.title('📊 **Distribusi Gempa Berdasarkan Pulau**')
+
+    selected_island = st.selectbox('Pilih Pulau:', list(regions_islands.keys()))
+
+    provinces = regions_islands[selected_island]
+    filtered_island_data = pd.DataFrame()
+    for province in provinces:
+        (lat_min, lat_max), (lon_min, lon_max) = regions_detailed[province]
+        province_data = data[(data['latitude'] >= lat_min) & (data['latitude'] <= lat_max) &
+                             (data['longitude'] >= lon_min) & (data['longitude'] <= lon_max)]
+        filtered_island_data = pd.concat([filtered_island_data, province_data])
+
+    if filtered_island_data.empty:
+        st.warning(f"Tidak ada data gempa untuk Pulau {selected_island}.")
+    else:
+        st.subheader(f"📍 Distribusi Titik Gempa di Pulau {selected_island}")
+        fig, ax = plt.subplots(figsize=(10, 6))
+        sns.histplot(data=filtered_island_data, x='magnitude', bins=20, kde=True, color='green', ax=ax)
+        ax.set_title(f'Distribusi Magnitudo Gempa di Pulau {selected_island}', fontsize=16, fontweight='bold')
+        ax.set_xlabel('Magnitudo', fontsize=14)
+        ax.set_ylabel('Frekuensi', fontsize=14)
+        st.pyplot(fig)
+
+        st.subheader(f'🗺️ Heatmap Gempa di Pulau {selected_island}')
+        m = folium.Map(location=[filtered_island_data['latitude'].mean(), filtered_island_data['longitude'].mean()], zoom_start=6)
+        heat_data = [[row['latitude'], row['longitude'], row['magnitude']] for _, row in filtered_island_data.iterrows()]
         if heat_data:
             HeatMap(heat_data, radius=15).add_to(m)
             st_folium(m, width=700, height=500)
