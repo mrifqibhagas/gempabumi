@@ -38,17 +38,14 @@ if page == "Beranda":
     st.header('Selamat datang di aplikasi Visualisasi Data Gempa Indonesia')
     st.write('Silakan pilih halaman di sidebar untuk memulai analisis.')
 
-    # Periksa kolom dalam dataset
-    st.write("Kolom dalam dataset:", data.columns)
-
     # Cek apakah data memiliki kolom magnitudo dan tidak kosong
     if 'magnitude' in data.columns and 'location' in data.columns and not data.empty:
         # Informasi Gempa terkuat
-        gempa_terkuat = data.nlargest(10, 'magnitude')
+        gempa_terkuat = data.nlargest(10, 'magnitude').reset_index(drop=True)
         
         st.subheader("🔍 10 Gempa Terkuat di Dataset")
-        for i, row in gempa_terkuat.iterrows():
-            st.write(f"{i+1}. {row['location']} - Magnitudo: {row['magnitude']} - Tahun: {pd.to_datetime(row['datetime']).year}")
+        # Menampilkan tabel gempa terkuat
+        st.table(gempa_terkuat[['location', 'magnitude', 'datetime']])
         
         # Peta lokasi gempa terkuat
         st.subheader("🗺️ Lokasi 10 Gempa Terkuat")
@@ -66,6 +63,8 @@ if page == "Beranda":
         st_folium(m, width=700, height=500)
     else:
         st.warning("Kolom 'magnitude', 'location', atau dataset kosong. Mohon periksa kembali dataset Anda.")
+
+
 # Halaman Visualisasi Berdasarkan Tahun
 elif page == "Visualisasi Berdasarkan Tahun":
     # Input rentang tahun dari pengguna
