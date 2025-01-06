@@ -26,6 +26,17 @@ regions_detailed = {
     'Maluku': {'lat_min': -8.5, 'lat_max': 2.5, 'lon_min': 125.5, 'lon_max': 135.5}
 }
 
+# Definisi pulau dan provinsi
+regions_islands = {
+    'Sumatera': ['Sumatera'],
+    'Jawa': ['Jawa'],
+    'Kalimantan': ['Kalimantan'],
+    'Sulawesi': ['Sulawesi'],
+    'Papua': ['Papua'],
+    'Bali dan Nusa Tenggara': ['Bali dan Nusa Tenggara'],
+    'Maluku': ['Maluku']
+}
+
 # Streamlit UI
 st.title('📊 **Visualisasi Data Gempa Indonesia**')
 
@@ -33,7 +44,6 @@ st.title('📊 **Visualisasi Data Gempa Indonesia**')
 page = st.sidebar.selectbox("Pilih Halaman", [
     "Beranda", 
     "Visualisasi Berdasarkan Tahun", 
-    "Distribusi Wilayah Detail",
     "Distribusi Berdasarkan Pulau"
 ])
 
@@ -62,7 +72,7 @@ if page == "Beranda":
             ).add_to(m)
         st_folium(m, width=700, height=500)
     else:
-        st.warning("Dataset tidak lengkap atau kosong. Periksa kembali file Anda.")
+        st.warning("Dataset tidak lengkap atau kosong . Periksa kembali file Anda.")
 
 elif page == "Visualisasi Berdasarkan Tahun":
     st.title('📊 **Visualisasi Data Gempa Berdasarkan Tahun**')
@@ -95,6 +105,38 @@ elif page == "Visualisasi Berdasarkan Tahun":
         ax.set_ylabel('Rata-rata Magnitudo', fontsize=14)
         ax.grid(True)
         st.pyplot(fig)
+
+        # Distribusi Titik Gempa Berdasarkan Wilayah
+        st.subheader('📍 Distribusi Titik Gempa Berdasarkan Wilayah')
+        region_counts = {}
+        for island, provinces in regions_islands.items():
+            total_count = 0
+            for province in provinces:
+                (lat_min, lat_max), (lon_min, lon_max) = regions_detailed[province]
+                count = filtered_data[(filtered_data['latitude'] >= lat_min) & 
+                                      (filtered_data['latitude'] <= lat_max) & 
+                                      (filtered_data['longitude'] >= lon_min) & 
+                                      (filtered_data['longitude'] <= lon_max)].shape[0]
+                total_count += count
+            region_counts[island] = total_count
+
+        fig, ax = plt.subplots(figsize=(10, 6))
+        ax.bar(region_counts.keys(), region_counts.values(), color=['#FF6347', '#1E90FF', '#32CD32', '#FFD700', '#8A2BE2'])
+        ax.set_title('Distribusi Titik Gempa Berdasarkan Wilayah', fontsize=16, fontweight='bold')
+        ax.set_xlabel('Wilayah', fontsize=14)
+        ax.set_ylabel('Jumlah Kejadian Gempa', fontsize=14)
+        ax.grid(axis='y', linestyle='--', alpha=0.7)
+        st.pyplot(fig)
+
+        # Heatmap
+        st.subheader('🗺️ Heatmap Gempa')
+        m = folium.Map(location=[(filtered_data['latitude'].mean()), (filtered_data['longitude'].mean())], zoom_start=5)
+        heat_data = [[row['latitude'], row['longitude']] for _, row in filtered_data.iterrows() if not pd.isnull(row['latitude']) and not pd.isnull(row['longitude'])]
+        if heat_data:
+            HeatMap(heat_data, radius=15).add_to(m)
+            st_folium(m, width=700, height=500)
+        else:
+            st.warning("Tidak ada data untuk heatmap pada rentang tahun ini.")
 
 elif page == "Distribusi Berdasarkan Pulau":
     st.title('📊 **Distribusi Gempa Berdasarkan Pulau**')
@@ -135,53 +177,6 @@ elif page == "Distribusi Berdasarkan Pulau":
         st.pyplot(fig)
 
         st.subheader(f'🗺️ Heatmap Gempa di Pulau {selected_region}')
-        m = folium.Map(location=[(bounds['lat_min'] + bounds['lat_max']) / 2, (bounds['lon_min'] + bounds['lon_max']) / 2], zoom_start=6)
-        heat_data = [[row['latitude'], row['longitude']] for _, row in filtered_region_data.iterrows() if not pd.isnull(row['latitude']) and not pd.isnull(row['longitude'])]
-        if heat_data:
-            HeatMap(heat_data, radius=15).add_to(m)
-            st_folium(m, width=700, height=500)
-        else:
-            st.warning("Tidak ada data untuk heatmap pada wilayah ini.")
-
-elif page == "Distribusi Wilayah Detail":
-    st.title('📊 **Distribusi Gempa Berdasarkan Wilayah Detail**')
-
-    selected_region = st.selectbox('Pilih Wilayah:', list(regions_detailed.keys()))
-    bounds = regions_detailed[selected_region]
-    filtered_region_data = data[(data['latitude'] >= bounds['lat_min']) &
-                                (data['latitude'] <= bounds['lat_max']) &
-                                (data['longitude'] >= bounds['lon_min']) &
-                                (data['longitude'] <= bounds['lon_max'])]
-
-    min_year = int(data['datetime'].min()[:4])
-    max_year = int(data['datetime'].max()[:4])
-    start_year, end_year = st.slider('Pilih Rentang Tahun:', min_value=min_year, max_value=max_year, value=(2008, 2024))
-    filtered_region_data = filter_data_by_year_range(filtered_region_data, start_year, end_year)
-
-    if filtered_region_data.empty:
-        st.warning(f"Tidak ada data gempa untuk wilayah {selected_region}.")
-    else:
-        st.subheader(f'📉 Rata-rata Magnitudo Gempa di Wilayah {selected_region} ({start_year}-{end_year})')
-        avg_magnitude = filtered_region_data.groupby('Year')['magnitude'].mean()
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.plot(avg_magnitude.index, avg_magnitude.values, marker='o', color='green')
-        ax.set_title(f'Rata-rata Magnitudo Gempa di Wilayah {selected_region}', fontsize=16, fontweight='bold')
-        ax.set_xlabel('Tahun', fontsize=14)
-        ax.set_ylabel('Rata-rata Magnitudo', fontsize=14)
-        ax.grid(True)
-        st.pyplot(fig)
-        
-        st.subheader(f'📊 Frekuensi Gempa per Tahun di Wilayah {selected_region}')
-        freq_per_year = filtered_region_data.groupby('Year').size()
-        fig, ax = plt.subplots(figsize=(10, 6))
-        ax.bar(freq_per_year.index, freq_per_year.values, color='lightblue')
-        ax.set_title(f'Frekuensi Gempa per Tahun di Wilayah {selected_region}', fontsize=16, fontweight='bold')
-        ax.set_xlabel('Tahun', fontsize=14)
-        ax.set_ylabel('Jumlah Gempa', fontsize=14)
-        ax.grid(axis='y', linestyle='--', alpha=0.7)
-        st.pyplot(fig)
-
-        st.subheader(f'🗺️ Heatmap Gempa di Wilayah {selected_region}')
         m = folium.Map(location=[(bounds['lat_min'] + bounds['lat_max']) / 2, (bounds['lon_min'] + bounds['lon_max']) / 2], zoom_start=6)
         heat_data = [[row['latitude'], row['longitude']] for _, row in filtered_region_data.iterrows() if not pd.isnull(row['latitude']) and not pd.isnull(row['longitude'])]
         if heat_data:
