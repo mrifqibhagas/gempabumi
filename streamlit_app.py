@@ -38,7 +38,20 @@ regions_islands = {
 }
 
 # Streamlit UI
+st.set_page_config(page_title="Visualisasi Gempa Indonesia", layout="wide")
+
 st.title('📊 **Visualisasi Data Gempa Indonesia**')
+st.markdown(
+    """
+    <style>
+    .sidebar .sidebar-content { background-color: #f8f9fa; }
+    .css-1d391kg { background-color: #f0f2f6; }
+    .css-qbe2hs { color: #333; }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+
 
 # Sidebar untuk navigasi
 page = st.sidebar.selectbox("Pilih Halaman", [
