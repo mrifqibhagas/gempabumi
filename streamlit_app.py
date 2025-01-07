@@ -61,7 +61,6 @@ page = st.sidebar.selectbox("Pilih Halaman", [
     "Visualisasi Berdasarkan Tahun", 
     "Distribusi Berdasarkan Pulau",
     "Korelasi dan Distribusi",
-    "Clustering Lokasi"
 ])
 
 if page == "Beranda":
@@ -327,22 +326,22 @@ elif page == "Korelasi dan Distribusi":
     st.pyplot(fig)
 
 
-elif page == "Clustering Lokasi":
-    st.title('📊 **Clustering Lokasi Gempa**')
+#elif page == "Clustering Lokasi":
+    #st.title('📊 **Clustering Lokasi Gempa**')
 
-    st.subheader("🗺️ Clustering dengan K-Means")
-    num_clusters = st.slider('Pilih Jumlah Cluster:', min_value=2, max_value=10, value=4)
+    #st.subheader("🗺️ Clustering dengan K-Means")
+    #num_clusters = st.slider('Pilih Jumlah Cluster:', min_value=2, max_value=10, value=4)
 
     # Preprocessing data
-    clustering_data = data[['latitude', 'longitude']].dropna()
-    kmeans = KMeans(n_clusters=num_clusters, random_state=0)
-    clustering_data['cluster'] = kmeans.fit_predict(clustering_data)
+    #clustering_data = data[['latitude', 'longitude']].dropna()
+    #kmeans = KMeans(n_clusters=num_clusters, random_state=0)
+    #clustering_data['cluster'] = kmeans.fit_predict(clustering_data)
 
-    fig, ax = plt.subplots(figsize=(10, 6))
-    sns.scatterplot(
-        data=clustering_data, x='longitude', y='latitude', hue='cluster', palette='viridis', ax=ax
-    )
-    ax.set_title('Hasil Clustering Lokasi Gempa', fontsize=16, fontweight='bold')
-    ax.set_xlabel('Longitude', fontsize=14)
-    ax.set_ylabel('Latitude', fontsize=14)
-    st.pyplot(fig)
+    #fig, ax = plt.subplots(figsize=(10, 6))
+    #sns.scatterplot(
+        #data=clustering_data, x='longitude', y='latitude', hue='cluster', palette='viridis', ax=ax
+    #)
+    #ax.set_title('Hasil Clustering Lokasi Gempa', fontsize=16, fontweight='bold')
+    #ax.set_xlabel('Longitude', fontsize=14)
+    #ax.set_ylabel('Latitude', fontsize=14)
+    #st.pyplot(fig)
